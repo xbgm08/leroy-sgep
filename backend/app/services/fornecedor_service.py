@@ -1,6 +1,5 @@
 from typing import List, Optional
 from pymongo.collection import Collection
-
 from app.models.fornecedor import Fornecedor
 from app.database.client import get_database
 
@@ -17,7 +16,7 @@ class FornecedorService:
         return [Fornecedor(**data) for data in fornecedores_data]
 
     def create(self, fornecedor: Fornecedor) -> Fornecedor:
-        """Cria um novo fornecedor com um ID sequencial (para simplificar a didática)."""
+        """Cria um novo fornecedor."""
         fornecedor_data = fornecedor.model_dump()
         
         self.collection.insert_one(fornecedor_data)
