@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaEdit, FaTrashAlt, FaListUl, FaInfoCircle } from 'react-icons/fa';
 import '../styles/Estoque.css';
 import { getProdutos } from '../api/produtoAPI';
 
@@ -106,15 +107,33 @@ const Estoque = () => {
                     <td>{produto.marca}</td>
                     <td>{produto.cor}</td>
                     <td>{produto.avs ? "Sim" : "Não"}</td>
-                    <td>{produto.preco_unit}</td>
+                    <td>R$ {produto.preco_unit}</td>
                     <td>{produto.total_estoque}</td>
                     <td>{formatarData(validadeProxima)}</td>
                     <td className={`cor ${statusInfo.classe}`}>{statusInfo.texto}</td>
                     <td>
-                      <button>Editar</button>
-                      <button>Excluir</button>
-                      <button>Lotes</button>
-                      <button>Ficha técnica</button>
+                      <div className="container-acoes">
+                        <div className="tooltip-container">
+                          <button className="action-button edit" title='Editar Produto'>
+                            <FaEdit />
+                          </button>
+                        </div>
+                        <div className="tooltip-container">
+                          <button className="action-button delete" title='Excluir Produto'>
+                            <FaTrashAlt />
+                          </button>
+                        </div>
+                        <div className="tooltip-container">
+                          <button className="action-button view" title='Ver lotes'>
+                            <FaListUl />
+                          </button>
+                        </div>
+                        <div className="tooltip-container">
+                          <button className="action-button info" title="Ficha Técnica">
+                            <FaInfoCircle />
+                          </button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 );
