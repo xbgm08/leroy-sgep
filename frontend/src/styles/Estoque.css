@@ -1,0 +1,92 @@
+.titulo {
+  color: rgb(42, 42, 42);
+  margin-bottom: 20px;
+}
+
+.titulo h2 {
+  margin-bottom: 5px;
+}
+
+.titulo h4 {
+  margin: 0;
+  color: #555;
+}
+
+/* Botão fora */
+button.fora {
+  border: none;
+  border-radius: 15px;
+  height: 40px;
+  width: 200px; 
+  float: right; 
+  margin-bottom: 20px;
+  background-color: #5ABC2B;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button.fora:hover {
+    opacity: 0.9;
+}
+
+
+input[type="text"] {
+  border: none;
+  border-radius: 15px;
+  height: 50px;
+  width: 100%; 
+  padding: 0 20px;
+  margin-bottom: 20px;
+  box-sizing: border-box; 
+}
+
+.tabela {
+  background-color: #ffffff; 
+  border-radius: 8px;
+  overflow: hidden; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse; 
+}
+
+th, td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee; 
+}
+
+th {
+  background-color: #f8f8f8;
+  font-weight: bold;
+  color: #333;
+}
+
+td button {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  background-color: #eee;
+  color: #333;
+}
+
+td button:hover {
+  background-color: #ddd;
+}
+
+td.cor {
+  font-weight: bold;
+  text-align: center;
+  border-radius: 15px;
+  padding: 5px 10px;
+}
+
+td.cor.verde { background-color: lightgreen; color: darkgreen; }
+td.cor.amarelo { background-color: lightyellow; color: orange; }
+td.cor.vermelho { background-color: lightcoral; color: darkred; }
+td.cor.preto { background-color: grey; color: white; }
