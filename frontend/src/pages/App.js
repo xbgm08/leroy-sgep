@@ -10,8 +10,6 @@ function App() {
       <Sidebar />
 
       <main className="main-content">
-        <h1>Bem-vindo ao SGEP!</h1>
-        <p>Selecione uma opção no menu para começar.</p>
         <Routes>
           <Route path="/estoque" element={<Estoque />} />
         </Routes>

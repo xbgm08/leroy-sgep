@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/Sidebar.css';
 import logoLeroy from '../assets/images/leroy.png';
 import iconDashboard1 from '../assets/images/dashboard1.png';
@@ -11,26 +12,22 @@ import iconApi1 from '../assets/images/api1.png';
 import iconApi2 from '../assets/images/api2.png';
 import iconConfig1 from '../assets/images/config1.png';
 
-const SidebarButton = ({ icon1, icon2, label, ...props }) => {
+const SidebarButton = ({ icon1, icon2, label, to }) => {
     const [currentIcon, setCurrentIcon] = useState(icon1);
     return (
-        <div 
+       <Link 
+            to={to} 
             className="botao"
             onMouseEnter={() => setCurrentIcon(icon2)}
             onMouseLeave={() => setCurrentIcon(icon1)}
-            {...props}
         >
             <img className="img_buttao" src={currentIcon} alt={label} />
             <p>{label}</p>
-        </div>
+        </Link>
     );
 };
 
 const Sidebar = () => {
-    const handleNavigation = (pageKey) => {
-        console.log(`Navegando para a página: ${pageKey}`);
-    };
-
     return (
         <div className="sidebar">
             <div className="titulos">
@@ -38,11 +35,11 @@ const Sidebar = () => {
                 <h2>LOSS PREVENTION</h2>
             </div>
 
-            <SidebarButton icon1={iconDashboard1} icon2={iconDashboard2} label="Dashboards" />
-            <SidebarButton icon1={iconBoxes1} icon2={iconBoxes2} label="Estoque" />
-            <SidebarButton icon1={iconPeople1} icon2={iconPeople2} label="Gerenciamento de Contas" />
-            <SidebarButton icon1={iconApi1} icon2={iconApi2} label="API" />
-            <SidebarButton icon1={iconConfig1} icon2={iconConfig1} label="Configurações da Conta" />
+            <SidebarButton icon1={iconDashboard1} icon2={iconDashboard2} label="Dashboards" to="/" />
+            <SidebarButton icon1={iconBoxes1} icon2={iconBoxes2} label="Estoque" to="/estoque" />
+            <SidebarButton icon1={iconPeople1} icon2={iconPeople2} label="Gerenciamento de Contas" to="/contas" />
+            <SidebarButton icon1={iconApi1} icon2={iconApi2} label="API" to="/api" />
+            <SidebarButton icon1={iconConfig1} icon2={iconConfig1} label="Configurações da Conta" to="/configuracoes" />
 
             <hr />
         </div>
