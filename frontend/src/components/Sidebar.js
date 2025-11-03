@@ -6,8 +6,6 @@ import iconDashboard1 from '../assets/images/dashboard1.png';
 import iconDashboard2 from '../assets/images/dashboard2.png';
 import iconBoxes1 from '../assets/images/boxes1.png';
 import iconBoxes2 from '../assets/images/boxes2.png';
-import iconPeople1 from '../assets/images/people1.png';
-import iconPeople2 from '../assets/images/people2.png';
 import iconApi1 from '../assets/images/api1.png';
 import iconApi2 from '../assets/images/api2.png';
 import iconConfig1 from '../assets/images/config1.png';
@@ -37,7 +35,6 @@ const Sidebar = () => {
 
             <SidebarButton icon1={iconDashboard1} icon2={iconDashboard2} label="Dashboards" to="/" />
             <SidebarButton icon1={iconBoxes1} icon2={iconBoxes2} label="Estoque" to="/estoque" />
-            <SidebarButton icon1={iconPeople1} icon2={iconPeople2} label="Gerenciamento de Contas" to="/contas" />
             <SidebarButton icon1={iconApi1} icon2={iconApi2} label="API" to="/api" />
             <SidebarButton icon1={iconConfig1} icon2={iconConfig1} label="Configurações da Conta" to="/configuracoes" />
 
