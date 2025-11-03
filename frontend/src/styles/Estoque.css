@@ -88,5 +88,6 @@ td.cor {
 
 td.cor.verde { background-color: lightgreen; color: darkgreen; }
 td.cor.amarelo { background-color: lightyellow; color: orange; }
+td.cor.laranja { background-color: lightsalmon; color: orangered; }
 td.cor.vermelho { background-color: lightcoral; color: darkred; }
 td.cor.preto { background-color: grey; color: white; }

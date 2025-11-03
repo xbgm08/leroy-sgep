@@ -1,10 +1,68 @@
-import React from 'react';
-import '../styles/Estoque.css'; 
+import React, { useState, useEffect } from 'react';
+import '../styles/Estoque.css';
+import { getProdutos } from '../api/produtoAPI';
 
 const Estoque = () => {
+  const [produtos, setProdutos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const carregarDados = async () => {
+      setLoading(true);
+
+      try {
+        const dados = await getProdutos();
+        setProdutos(dados);
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarDados();
+  }, []);
+
+  const getValidadeMaisProxima = (lotes) => {
+    if (!lotes || lotes.length === 0) return null;
+
+    const lotesAtivos = lotes.filter(l => l.status === 'Ativo');
+    if (lotesAtivos.length === 0) return null;
+
+    const dataMaisProxima = lotesAtivos.reduce((dataAntiga, loteAtual) => {
+      const dataLote = new Date(loteAtual.data_validade);
+      return dataLote < dataAntiga ? dataLote : dataAntiga;
+    }, new Date(lotesAtivos[0].data_validade));
+
+    return dataMaisProxima;
+  };
+
+  const formatarData = (data) => {
+    if (!data) return "N/A";
+    const dataObj = new Date(data);
+    return new Date(dataObj.getTime() + dataObj.getTimezoneOffset() * 60000).toLocaleDateString('pt-BR');
+  };
+
+  const getStatusEtiqueta = (dataValidade) => {
+    if (!dataValidade) return { texto: 'Sem Lotes', classe: 'preto' };
+
+    const hoje = new Date();
+    const diffTime = dataValidade.getTime() - hoje.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return { texto: 'Perdido', classe: 'vermelho' };
+    if (diffDays <= 30) return { texto: 'Crítico', classe: 'laranja' };
+    if (diffDays <= 90) return { texto: 'Atenção', classe: 'amarelo' };
+    return { texto: 'Seguro', classe: 'verde' };
+  };
+
+  if (loading) {
+    return <div>Carregando dados do estoque...</div>;
+  }
+
   return (
-    <> 
-      <div className="titulo"> 
+    <>
+      <div className="titulo">
         <h2>Estoque</h2>
         <h4>Aba dos Produtos</h4>
       </div>
@@ -15,31 +73,53 @@ const Estoque = () => {
 
       <div className="tabela">
         <table>
-          <thead> 
+          <thead>
             <tr>
-              <th>N° do Lote</th>
+              <th>Código LM</th>
+              <th>EAN</th>
               <th>Nome do Produto</th>
-              <th>Seção / Subseção</th>
-              <th>Total em Estoque</th>
-              <th>Data de Validade</th>
-              <th>Localização</th>
-              <th> </th> 
-              <th> </th> 
-              <th>Etiqueta</th>
+              <th>Marca</th>
+              <th>Cor</th>
+              <th>AVS</th>
+              <th>Preço Unitário</th>
+              <th>Estoque Total (Ativo)</th>
+              <th>Validade Mais Próxima</th>
+              <th>Status</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>LOTE-EXEMPLO-01</td>
-              <td>Argamassa ACIII Cinza</td>
-              <td>Construção / Argamassas</td>
-              <td>150</td>
-              <td>2025-12-01</td>
-              <td>Corredor 5, Prateleira 3</td>
-              <td><button>Adicionar Lote</button></td>
-              <td><button>Editar Lote</button></td>
-              <td className="cor verde">Seguro</td>
-            </tr>
+            {produtos.length === 0 ? (
+              <tr>
+                <td colSpan="9">Nenhum produto encontrado.</td>
+              </tr>
+            ) : (
+              produtos.map((produto) => {
+                const validadeProxima = getValidadeMaisProxima(produto.lotes);
+                const statusInfo = getStatusEtiqueta(validadeProxima);
+
+                return (
+                  <tr key={produto.codigo_lm}>
+                    <td>{produto.codigo_lm}</td>
+                    <td>{produto.ean}</td>
+                    <td>{produto.nome_produto}</td>
+                    <td>{produto.marca}</td>
+                    <td>{produto.cor}</td>
+                    <td>{produto.avs ? "Sim" : "Não"}</td>
+                    <td>{produto.preco_unit}</td>
+                    <td>{produto.total_estoque}</td>
+                    <td>{formatarData(validadeProxima)}</td>
+                    <td className={`cor ${statusInfo.classe}`}>{statusInfo.texto}</td>
+                    <td>
+                      <button>Editar</button>
+                      <button>Excluir</button>
+                      <button>Lotes</button>
+                      <button>Ficha técnica</button>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
