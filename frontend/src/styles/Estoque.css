@@ -93,7 +93,6 @@ td.cor.vermelho { background-color: lightcoral; color: darkred; }
 td.cor.preto { background-color: grey; color: white; }
 
 .container-acoes {
-  /* Alinha os botões lado a lado */
   display: flex;
   justify-content: space-around;
   align-items: center;

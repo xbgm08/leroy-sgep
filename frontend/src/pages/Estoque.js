@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt, FaListUl, FaInfoCircle } from 'react-icons/fa';
 import '../styles/Estoque.css';
+import '../styles/Modal.css';
 import { getProdutos } from '../api/produtoAPI';
+import LotesModal from '../components/LotesModal';
 
 const Estoque = () => {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [produtoSelecionado, setProdutoSelecionado] = useState(null);
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -57,6 +61,16 @@ const Estoque = () => {
     return { texto: 'Seguro', classe: 'verde' };
   };
 
+  const handleOpenModal = (produto) => {
+    setProdutoSelecionado(produto);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setProdutoSelecionado(null);
+  };
+
   if (loading) {
     return <div>Carregando dados do estoque...</div>;
   }
@@ -76,14 +90,13 @@ const Estoque = () => {
         <table>
           <thead>
             <tr>
-              <th>Código LM</th>
+              <th>Cód. LM</th>
               <th>EAN</th>
               <th>Nome do Produto</th>
               <th>Marca</th>
-              <th>Cor</th>
-              <th>AVS</th>
+              <th>Fornecedor</th>
               <th>Preço Unitário</th>
-              <th>Estoque Total (Ativo)</th>
+              <th>Estoque Total</th>
               <th>Validade Mais Próxima</th>
               <th>Status</th>
               <th>Ações</th>
@@ -105,34 +118,25 @@ const Estoque = () => {
                     <td>{produto.ean}</td>
                     <td>{produto.nome_produto}</td>
                     <td>{produto.marca}</td>
-                    <td>{produto.cor}</td>
-                    <td>{produto.avs ? "Sim" : "Não"}</td>
+                    <td>{produto.fornecedor_nome}</td>
                     <td>R$ {produto.preco_unit}</td>
                     <td>{produto.total_estoque}</td>
                     <td>{formatarData(validadeProxima)}</td>
                     <td className={`cor ${statusInfo.classe}`}>{statusInfo.texto}</td>
                     <td>
                       <div className="container-acoes">
-                        <div className="tooltip-container">
-                          <button className="action-button edit" title='Editar Produto'>
-                            <FaEdit />
-                          </button>
-                        </div>
-                        <div className="tooltip-container">
-                          <button className="action-button delete" title='Excluir Produto'>
-                            <FaTrashAlt />
-                          </button>
-                        </div>
-                        <div className="tooltip-container">
-                          <button className="action-button view" title='Ver lotes'>
-                            <FaListUl />
-                          </button>
-                        </div>
-                        <div className="tooltip-container">
-                          <button className="action-button info" title="Ficha Técnica">
-                            <FaInfoCircle />
-                          </button>
-                        </div>
+                        <button className="action-button edit" title='Editar Produto'>
+                          <FaEdit />
+                        </button>
+                        <button className="action-button delete" title='Excluir Produto'>
+                          <FaTrashAlt />
+                        </button>
+                        <button className="action-button view" title='Ver lotes' onClick={() => handleOpenModal(produto)}>
+                          <FaListUl />
+                        </button>
+                        <button className="action-button info" title="Ficha Técnica">
+                          <FaInfoCircle />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -142,6 +146,11 @@ const Estoque = () => {
           </tbody>
         </table>
       </div>
+      <LotesModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        produto={produtoSelecionado}
+      />
     </>
   );
 };
