@@ -2,14 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt, FaListUl, FaInfoCircle } from 'react-icons/fa';
 import '../styles/Estoque.css';
 import '../styles/Modal.css';
-import { getProdutos } from '../api/produtoAPI';
+import { getProdutos, deleteProduto } from '../api/produtoAPI';
 import LotesModal from '../components/LotesModal';
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
 const Estoque = () => {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -61,14 +66,38 @@ const Estoque = () => {
     return { texto: 'Seguro', classe: 'verde' };
   };
 
-  const handleOpenModal = (produto) => {
+  const handleOpenLotesModal = (produto) => {
     setProdutoSelecionado(produto);
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseLotesModal = () => {
     setIsModalOpen(false);
     setProdutoSelecionado(null);
+  };
+
+  const handleOpenDeleteModal = (produto) => {
+    setProductToDelete(produto);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setProductToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) return;
+    
+    const success = await deleteProduto(productToDelete.codigo_lm); 
+    
+    if (success) {
+      setProdutos(produtos.filter(p => p.codigo_lm !== productToDelete.codigo_lm));
+    } else {
+      console.error("Falha ao deletar o produto.");
+    }
+    
+    handleCloseDeleteModal();
   };
 
   if (loading) {
@@ -128,10 +157,10 @@ const Estoque = () => {
                         <button className="action-button edit" title='Editar Produto'>
                           <FaEdit />
                         </button>
-                        <button className="action-button delete" title='Excluir Produto'>
+                        <button className="action-button delete" title='Excluir Produto' onClick={() => handleOpenDeleteModal(produto)}>
                           <FaTrashAlt />
                         </button>
-                        <button className="action-button view" title='Ver lotes' onClick={() => handleOpenModal(produto)}>
+                        <button className="action-button view" title='Ver lotes' onClick={() => handleOpenLotesModal(produto)}>
                           <FaListUl />
                         </button>
                         <button className="action-button info" title="Ficha Técnica">
@@ -148,8 +177,15 @@ const Estoque = () => {
       </div>
       <LotesModal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        onClose={handleCloseLotesModal}
         produto={produtoSelecionado}
+      />
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Confirmar Exclusão"
+        message={`Tem certeza que deseja excluir o produto "${productToDelete?.nome_produto}"? Esta ação não pode ser desfeita.`}
       />
     </>
   );

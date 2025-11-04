@@ -15,3 +15,16 @@ export const getProdutos = async () => {
         return [];
     }
 };
+
+export const deleteProduto = async (codigo_lm) => {
+    try {
+        const response = await fetch(`${API_URL}/produtos/${codigo_lm}`, {
+            method: 'DELETE',
+        });
+        
+        return response.ok; 
+    } catch (error) {
+        console.error("Erro em deleteProduto:", error);
+        return false; 
+    }
+};

@@ -94,6 +94,44 @@
   color: #a71d2a;
 }
 
+.modal-header-danger {
+  color: #dc3545; 
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.modal-footer button {
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel {
+  background-color: #6c757d; 
+  color: white;
+}
+.btn-cancel:hover {
+  background-color: #5a6268;
+}
+
+.btn-confirm-delete {
+  background-color: #dc3545;
+  color: white;
+}
+.btn-confirm-delete:hover {
+  background-color: #c82333;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
