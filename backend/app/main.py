@@ -3,6 +3,9 @@ from fastapi import FastAPI
 from app.database.client import connect_to_mongo, close_mongo_connection
 from app.routes import fornecedor_router, produto_router
 
+# 
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     connect_to_mongo()
