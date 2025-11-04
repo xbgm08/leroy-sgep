@@ -22,7 +22,8 @@ class Produto(BaseModel):
     avs: bool
     preco_unit: float
     total_estoque: int
-    fornecedor_id: int
+    fornecedor_cnpj: str
+    fornecedor_nome: Optional[str] = None
     lotes: List[Lote]
     
     model_config = {
@@ -39,7 +40,7 @@ class Produto(BaseModel):
                     "avs": True,
                     "preco_unit": 15.75,
                     "total_estoque": 150,
-                    "fornecedor_id": 42,
+                    "fornecedor_cnpj": "12345678000190",
                     "lotes": [
                         {
                             "codigo_lote": 1,

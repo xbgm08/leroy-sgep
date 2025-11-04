@@ -1,7 +1,8 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pymongo.collection import Collection
 from app.models.produto import Produto, Lote
 from app.database.client import get_database
+from app.services.fornecedor_service import FornecedorService
 
 class ProdutoService:
     def __init__(self):
@@ -13,7 +14,17 @@ class ProdutoService:
     def get_all(self) -> List[Produto]:
         """Retorna todos os produtos cadastrados."""
         produtos_data = list(self.collection.find())
-        return [Produto(**data) for data in produtos_data]
+        fornecedor_service = FornecedorService()
+        todos_fornecedores = fornecedor_service.get_all()
+        fornecedor_map = {f.cnpj: f.nome for f in todos_fornecedores if f.cnpj is not None}
+        
+        resultados = []
+        for data in produtos_data:
+            produto = Produto(**data)
+            produto.fornecedor_nome = fornecedor_map.get(produto.fornecedor_cnpj)
+            resultados.append(produto)
+
+        return resultados
 
     def create(self, produto: Produto) -> Produto:
         """Cria um novo produto."""    
