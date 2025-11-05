@@ -24,12 +24,10 @@ class ProdutoService:
         self.collection.create_index("lotes.codigo_lote", unique=True, sparse=True)
         self.collection.create_index([("nome_produto", "text")]) # Para busca por nome
 
-        # --- CAMINHOS ATUALIZADOS (com a nova pasta 'processando') ---
+        # --- CAMINHOS ---
         
-        # 1. Obtenha o caminho base *como uma string*
         base_path_str = os.getenv("BASE_IMPORT_PATH", "C:/importar")
         
-        # 2. Obtenha os caminhos completos *como strings*
         watch_folder_str = os.getenv(
             "IMPORT_WATCH_FOLDER", 
             os.path.join(base_path_str, "pendentes")
@@ -42,7 +40,7 @@ class ProdutoService:
             "IMPORT_ERROR_FOLDER", 
             os.path.join(base_path_str, "erros")
         )
-        # --- 3. NOVO CAMINHO ---
+        
         processing_folder_str = os.path.join(base_path_str, "processando")
 
         self.WATCH_FOLDER = Path(watch_folder_str)
@@ -208,11 +206,10 @@ class ProdutoService:
 
     def importar_produtos_from_excel(self) -> dict:
         """
-        Lê TODOS os arquivos .xlsx da pasta "pendentes", processa-os,
-        e os move para "processados" ou "erros".
+        Lê TODOS os arquivos .xlsx da pasta "pendentes", processa-os (calculando
+        o preco_unit) e os move para "processados" ou "erros".
         """
         
-        # Garante que as pastas de destino existam
         os.makedirs(self.PROCESSED_FOLDER, exist_ok=True)
         os.makedirs(self.ERROR_FOLDER, exist_ok=True)
         os.makedirs(self.PROCESSING_FOLDER, exist_ok=True)
@@ -226,11 +223,11 @@ class ProdutoService:
 
         for file_path in files_to_process:
             
-            # Move o arquivo para "processando" (Lógica de File Lock)
+            processing_file_path = self.PROCESSING_FOLDER / file_path.name
             try:
-                processing_file_path = self.PROCESSING_FOLDER / file_path.name
                 shutil.move(str(file_path), processing_file_path)
             except Exception as move_error:
+                # ... (lógica de erro de 'move' não muda)
                 report["arquivos_com_erro"].append({
                     "arquivo": file_path.name,
                     "erro": f"Erro CRÍTICO ao mover arquivo para 'processando': {move_error}"
@@ -238,23 +235,60 @@ class ProdutoService:
                 continue 
 
             try:
-                # --- 1. EXTRAIR (Lê o arquivo da pasta 'processando') ---
+                # --- EXTRAIR ---
                 df = pd.read_excel(processing_file_path, engine='openpyxl')
 
-                # --- 2. TRANSFORMAR (Lógica de tratamento, sem alterações) ---
-                colunas_esperadas = ['Material', 'Qtd. Estoque', 'Seção', 'Subseção']
+                # --- TRANSFORMAR ---
+                
+                colunas_esperadas = ['Material', 'Qtd. Estoque', 'Seção', 'Subseção', 'Estoque Valor', 'Loja']
                 if not all(col in df.columns for col in colunas_esperadas):
                     raise ValueError(f"Arquivo fora do formato. Faltando uma das colunas: {colunas_esperadas}")
                 
                 df = df.dropna(subset=['Material', 'Seção', 'Subseção'])
                 df = df[df['Material'].str.strip() != '']
                 
+                # ... (Tratamento de Material, Qtd. Estoque não muda)
                 df['codigo_lm_str'] = df['Material'].astype(str).str.slice(0, 8).str.strip()
                 df['nome_produto'] = df['Material'].astype(str).str.slice(8).str.strip()
                 df['codigo_lm'] = pd.to_numeric(df['codigo_lm_str'], errors='coerce')
-                
                 df['estoque_reportado'] = pd.to_numeric(df['Qtd. Estoque'], errors='coerce').fillna(0).astype(int)
                 
+                
+                def limpar_valor_monetario(valor) -> float:
+                    """
+                    Converte uma string/float monetário (ex: "10.216,62" ou 18.9999) 
+                    para um float arredondado a 2 casas decimais.
+                    """
+                    if pd.isna(valor):
+                        return 0.0
+                    
+                    valor_str = str(valor).strip()
+                    
+                    if ',' in valor_str:
+                        valor_str = valor_str.replace('.', '', regex=False)
+                        valor_str = valor_str.replace(',', '.', regex=False)
+                    
+                    resultado_numerico = pd.to_numeric(valor_str, errors='coerce')
+                    
+                    if pd.isna(resultado_numerico):
+                        return 0.0
+                    else:
+                        # Arredonda o valor para 2 casas decimais ANTES de retornar
+                        return round(float(resultado_numerico), 2)
+                
+                # Aplica a nova função de limpeza
+                df['estoque_valor_float'] = df['Estoque Valor'].apply(limpar_valor_monetario)
+                
+                
+
+                # Cálculo do preco_unit (já estava a arredondar, o que é ótimo)
+                df['preco_unit_calculado'] = 0.0
+                mask_estoque_valido = df['estoque_reportado'] > 0
+                df.loc[mask_estoque_valido, 'preco_unit_calculado'] = (
+                    df['estoque_valor_float'] / df['estoque_reportado']
+                ).round(2)
+                
+                # ... (Tratamento de Seção, Subseção, Filtro final e Nulos não muda)
                 secao_split = df['Seção'].astype(str).str.split(' - ', n=1, expand=True)
                 df['cod_secao'] = pd.to_numeric(secao_split[0], errors='coerce')
                 df['secao'] = secao_split[1].str.strip()
@@ -265,22 +299,15 @@ class ProdutoService:
                 
                 df = df.dropna(subset=['codigo_lm'])
                 df['codigo_lm'] = df['codigo_lm'].astype(int)
-                
-                # Converte 'NaN' (Not a Number) para 'None' (Nulo)
                 df = df.where(pd.notna(df), None)
                 
                 
-                # --- 3. CARREGAR (Bulk Upsert) ---
+                # --- CARREGAR ---
                 operacoes_bulk = []
                 for record in df.to_dict("records"):
                     
                     filtro = {"codigo_lm": record['codigo_lm']}
                     
-                    # --- CORREÇÃO DA LÓGICA DE UPDATE ---
-                    
-                    # $set: Campos da planilha.
-                    # Estes campos serão ATUALIZADOS se o produto existir,
-                    # e também serão DEFINIDOS se for um novo produto (insert).
                     dados_set = {
                         "estoque_reportado": record['estoque_reportado'],
                         "nome_produto": record['nome_produto'],
@@ -288,42 +315,34 @@ class ProdutoService:
                         "secao": record.get('secao'),
                         "cod_subsecao": record.get('cod_subsecao'),
                         "subsecao": record.get('subsecao'),
-                        "codigo_lm": record['codigo_lm'] # Garante que o LM é definido no $set
+                        
+                        # O preco_unit que vai para o $set já vem arredondado
+                        "preco_unit": record.get('preco_unit_calculado', 0.0) 
                     }
                     
-                    # $setOnInsert: Campos padrão.
-                    # Estes campos são definidos APENAS NA CRIAÇÃO (Insert).
-                    # Eles NÃO SÃO ATUALIZADOS se o produto já existir.
                     dados_setOnInsert = {
+                        "codigo_lm": record['codigo_lm'],
                         "marca": "Aguardando Cadastro",
                         "ficha_tec": "Aguardando Cadastro",
                         "link_prod": "Aguardando Cadastro",
                         "cor": "Aguardando Cadastro",
-                        "preco_unit": 0.0,
                         "avs": False,
                         "ativo": True,
                         "total_estoque": 0,
                         "lotes": []
-                        # Removemos 'estoque_reportado', 'nome_produto', etc. daqui
                     }
                     
-                    # A operação de atualização.
-                    # Agora $set e $setOnInsert NÃO têm chaves em comum.
                     update_op = {
                         "$set": dados_set,
                         "$setOnInsert": dados_setOnInsert
                     }
-                    # -------------------------------------
-                    
                     operacoes_bulk.append(UpdateOne(filtro, update_op, upsert=True))
 
                 if not operacoes_bulk:
                     raise ValueError("Nenhum dado válido encontrado dentro da planilha.")
 
-                # Executa a carga no banco
                 resultado = self.collection.bulk_write(operacoes_bulk)
                 
-                # Move o arquivo para "processados"
                 shutil.move(str(processing_file_path), self.PROCESSED_FOLDER / processing_file_path.name)
                 report["arquivos_processados_com_sucesso"].append({
                     "arquivo": processing_file_path.name,
@@ -332,7 +351,6 @@ class ProdutoService:
                 })
 
             except Exception as e:
-                # Move o arquivo para "erros"
                 try:
                     shutil.move(str(processing_file_path), self.ERROR_FOLDER / processing_file_path.name)
                     report["arquivos_com_erro"].append({

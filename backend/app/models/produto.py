@@ -39,13 +39,12 @@ class Produto(BaseModel):
     def valor_estoque_calculado(self) -> float:
         """Calcula o valor total do estoque do produto (Preço Unit. * Estoque Total)"""
         # Este valor é calculado dinamicamente e aparecerá no JSON de resposta
-        return self.preco_unit * self.estoque_calculado
+        return round(self.preco_unit * self.estoque_calculado, 2)
     
     @computed_field
     @property
     def discrepancia_estoque(self) -> Optional[int]:
         """Calcula a diferença entre o estoque reportado e o estoque calculado."""
-        
         # Se não houver estoque reportado, não há discrepância
         if self.estoque_reportado is None:
             return 0 # Ou 'None' se preferir
@@ -61,8 +60,8 @@ class Produto(BaseModel):
         Retorna None se o estoque_reportado não foi preenchido.
         """
         if self.estoque_reportado is None:
-            return None # Não podemos calcular o valor se não houver estoque reportado
+            return None 
             
-        return self.preco_unit * self.estoque_reportado
+        return round(self.preco_unit * self.estoque_reportado, 2)
     
     
