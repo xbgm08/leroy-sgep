@@ -60,10 +60,10 @@ const Estoque = () => {
     const diffTime = dataValidade.getTime() - hoje.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return { texto: 'Perdido', classe: 'vermelho' };
-    if (diffDays <= 30) return { texto: 'Crítico', classe: 'laranja' };
-    if (diffDays <= 90) return { texto: 'Atenção', classe: 'amarelo' };
-    return { texto: 'Seguro', classe: 'verde' };
+    if (diffDays < 0) return { texto: 'Vencido', classe: 'vermelho' };
+    if (diffDays <= 30) return { texto: 'Crítico', classe: 'laranja', legenda: 'Vence em até 30 dias' };
+    if (diffDays <= 90) return { texto: 'Atenção', classe: 'amarelo', legenda: 'Vence em até 90 dias' };
+    return { texto: 'Seguro', classe: 'verde', legenda: 'Vence em mais de 90 dias' };
   };
 
   const handleOpenLotesModal = (produto) => {
@@ -151,7 +151,7 @@ const Estoque = () => {
                     <td>R$ {produto.preco_unit}</td>
                     <td>{produto.total_estoque}</td>
                     <td>{formatarData(validadeProxima)}</td>
-                    <td className={`cor ${statusInfo.classe}`}>{statusInfo.texto}</td>
+                    <td className={`cor ${statusInfo.classe}`} title={statusInfo.legenda}>{statusInfo.texto}</td>
                     <td>
                       <div className="container-acoes">
                         <button className="action-button edit" title='Editar Produto'>
