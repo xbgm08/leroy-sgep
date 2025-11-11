@@ -1,51 +1,37 @@
+import axios from 'axios';
+
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export const createProduto = async (produtoData) => {
     try {
-        const response = await fetch(`${API_URL}/produtos`, {
-            method: 'POST',
+        const response = await axios.post(`${API_URL}/produtos`, produtoData, {
             headers: {
                 'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(produtoData),
+            }
         });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Falha ao criar o produto');
-        }
-        
-        return await response.json(); 
+        return response.data;
     } catch (error) {
-        console.error("Erro em createProduto:", error);
-        throw error; 
+        console.error("Erro em createProduto:", error.response?.data || error.message);
+        throw new Error(error.response?.data?.detail || 'Falha ao criar o produto');
     }
 };
 
 export const getProdutos = async () => {
     try {
-        const response = await fetch(`${API_URL}/produtos/`);
-        if (!response.ok) {
-            console.error('Erro ao buscar produtos da API:', response.statusText);
-            throw new Error('Falha ao buscar produtos da API');
-        }
-        const data = await response.json();
-        return data;
+        const response = await axios.get(`${API_URL}/produtos/`);
+        return response.data;
     } catch (error) {
-        console.error(error);
+        console.error('Erro ao buscar produtos da API:', error.response?.data || error.message);
         return [];
     }
 };
 
 export const deleteProduto = async (codigo_lm) => {
     try {
-        const response = await fetch(`${API_URL}/produtos/${codigo_lm}`, {
-            method: 'DELETE',
-        });
-        
-        return response.ok; 
+        await axios.delete(`${API_URL}/produtos/${codigo_lm}`);
+        return true;
     } catch (error) {
-        console.error("Erro em deleteProduto:", error);
-        return false; 
+        console.error("Erro em deleteProduto:", error.response?.data || error.message);
+        return false;
     }
 };
