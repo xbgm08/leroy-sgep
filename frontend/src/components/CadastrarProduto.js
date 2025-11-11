@@ -1,0 +1,151 @@
+import React, { useState } from 'react';
+import { createProduto } from '../api/produtoAPI';
+import '../styles/CadastroProduto.css';
+
+const initialState = {
+    nome_produto: "",
+    codigo_lm: "",
+    ean: "",
+    marca: "",
+    ficha_tec: "",
+    link_prod: "",
+    cor: "",
+    avs: false,
+    preco_unit: "",
+    total_estoque: "",
+    fornecedor_cnpj: "",
+    fornecedor_nome: ""
+};
+
+const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
+    const [formData, setFormData] = useState(initialState);
+
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const dadosParaAPI = {
+                nome_produto: formData.nome_produto,
+                codigo_lm: parseInt(formData.codigo_lm, 10),
+                ean: formData.ean ? parseInt(formData.ean, 10) : null,
+                marca: formData.marca,
+                ficha_tec: formData.ficha_tec,
+                link_prod: formData.link_prod,
+                cor: formData.cor,
+                avs: formData.avs,
+                preco_unit: parseFloat(formData.preco_unit),
+                total_estoque: parseInt(formData.total_estoque, 10),
+                fornecedor_cnpj: formData.fornecedor_cnpj,
+                fornecedor_nome: formData.fornecedor_nome || null,
+                lotes: []
+            };
+
+            await createProduto(dadosParaAPI);
+            
+            alert('Produto cadastrado com sucesso!');
+            onProdutoCadastrado(); 
+            setFormData(initialState); 
+
+        } catch (error) {
+            console.error(error);
+            alert(`Erro ao cadastrar produto: ${error.message}`);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="cadastro-form">
+            <h1>Cadastrar Produto</h1>
+            
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="nome_produto">Nome do Produto:</label>
+                    <input className="caixa" id="nome_produto" name="nome_produto" type="text" onChange={handleChange} value={formData.nome_produto} maxLength="200" required />
+                </div>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="codigo_lm">Código LM:</label>
+                    <input className="caixa" id="codigo_lm" name="codigo_lm" type="number" onChange={handleChange} value={formData.codigo_lm} required />
+                </div>
+                <div className="campo">
+                    <label htmlFor="ean">EAN:</label>
+                    <input className="caixa" id="ean" name="ean" type="number" onChange={handleChange} value={formData.ean} />
+                </div>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="marca">Marca:</label>
+                    <input className="caixa" id="marca" name="marca" type="text" onChange={handleChange} value={formData.marca} maxLength="100" required />
+                </div>
+                <div className="campo">
+                    <label htmlFor="cor">Cor:</label>
+                    <input className="caixa" id="cor" name="cor" type="text" onChange={handleChange} value={formData.cor} maxLength="50" />
+                </div>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="fornecedor_cnpj">CNPJ do Fornecedor:</label>
+                    <input className="caixa" id="fornecedor_cnpj" name="fornecedor_cnpj" type="text" onChange={handleChange} value={formData.fornecedor_cnpj} placeholder="12345678000190" required />
+                </div>
+                <div className="campo">
+                    <label htmlFor="fornecedor_nome">Nome do Fornecedor:</label>
+                    <input className="caixa" id="fornecedor_nome" name="fornecedor_nome" type="text" onChange={handleChange} value={formData.fornecedor_nome} />
+                </div>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="preco_unit">Preço Unitário (R$):</label>
+                    <input className="caixa" id="preco_unit" name="preco_unit" type="number" step="0.01" onChange={handleChange} value={formData.preco_unit} required />
+                </div>
+                <div className="campo">
+                    <label htmlFor="total_estoque">Estoque Inicial Total:</label>
+                    <input className="caixa" id="total_estoque" name="total_estoque" type="number" onChange={handleChange} value={formData.total_estoque} required />
+                </div>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="link_prod">Link do Produto:</label>
+                    <input className="caixa" id="link_prod" name="link_prod" type="url" onChange={handleChange} value={formData.link_prod} maxLength="300" />
+                </div>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="ficha_tec">Ficha Técnica (URL):</label>
+                    <input className="caixa" id="ficha_tec" name="ficha_tec" type="url" onChange={handleChange} value={formData.ficha_tec} maxLength="500" />
+                </div>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="avs">
+                        <input type="checkbox" id="avs" name="avs" onChange={handleChange} checked={formData.avs} />
+                        AVS (Alto Valor de Segurança)
+                    </label>
+                </div>
+            </div>
+
+            <div className="linha">
+                <button className="botao" type="submit">Adicionar</button>
+                <button className="botao" type="button" onClick={onClose}>
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    );
+};
+
+export default CadastroProduto;

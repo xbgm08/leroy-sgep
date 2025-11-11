@@ -1,0 +1,79 @@
+.cadastro-form {
+  background-color: #d3d3d3;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 20px;
+  height: 100%; 
+}
+
+.cadastro-form h1 {
+  text-align: center;
+  margin-top: 0;
+}
+
+.cadastro-form label {
+  padding-left: 10px;
+  display: block;
+  margin-bottom: 5px;
+  color: #444;
+  font-weight: bold;
+}
+
+.cadastro-form .linha {
+  display: flex;
+  gap: 15px; 
+  margin-bottom: 15px;
+}
+
+.cadastro-form .campo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+}
+
+.cadastro-form .caixa {
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 15px;
+  width: 100%;
+  box-sizing: border-box; 
+}
+
+.cadastro-form .ficha {
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 15px;
+  width: 100%;
+  height: 120px;
+  box-sizing: border-box;
+}
+
+.cadastro-form .botao {
+  border: None;
+  border-radius: 15px;
+  height: 40px;
+  width: 45%;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cadastro-form .botao[type="submit"] {
+  background-color: #5ABC2B; 
+  color: white;
+}
+.cadastro-form .botao[type="submit"]:hover {
+  background-color: #4a9b24;
+}
+
+.cadastro-form .botao[type="button"] {
+  background-color: #6c757d;
+  color: white;
+}
+.cadastro-form .botao[type="button"]:hover {
+  background-color: #5a6268;
+}

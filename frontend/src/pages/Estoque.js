@@ -5,6 +5,7 @@ import '../styles/Modal.css';
 import { getProdutos, deleteProduto } from '../api/produtoAPI';
 import LotesModal from '../components/LotesModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import CadastroProduto from '../components/CadastrarProduto';
 
 const Estoque = () => {
   const [produtos, setProdutos] = useState([]);
@@ -16,20 +17,22 @@ const Estoque = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
 
+  const [isCadastroOpen, setIsCadastroOpen] = useState(false);
+
+ const carregarDados = async () => {
+    setLoading(true);
+
+    try {
+      const dados = await getProdutos();
+      setProdutos(dados);
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const carregarDados = async () => {
-      setLoading(true);
-
-      try {
-        const dados = await getProdutos();
-        setProdutos(dados);
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     carregarDados();
   }, []);
 
@@ -100,6 +103,19 @@ const Estoque = () => {
     handleCloseDeleteModal();
   };
 
+  const handleOpenCadastro = () => {
+    setIsCadastroOpen(true);
+  };
+
+  const handleCloseCadastro = () => {
+    setIsCadastroOpen(false);
+  };
+
+  const handleProdutoCadastrado = () => {
+    carregarDados();
+    setIsCadastroOpen(false);
+  };
+
   if (loading) {
     return <div>Carregando dados do estoque...</div>;
   }
@@ -111,7 +127,7 @@ const Estoque = () => {
         <h4>Aba dos Produtos</h4>
       </div>
 
-      <button className="fora">Cadastrar Produto</button>
+      <button className="fora" onClick={handleOpenCadastro}>Cadastrar Produto</button>
 
       <input type="text" placeholder="Pesquisar" />
 
@@ -175,11 +191,24 @@ const Estoque = () => {
           </tbody>
         </table>
       </div>
+
+      {isCadastroOpen && (
+        <div className="sidebar-overlay" onClick={handleCloseCadastro}>
+          <div className="sidebar-cadastro" onClick={(e) => e.stopPropagation()}>
+            <CadastroProduto 
+              onProdutoCadastrado={handleProdutoCadastrado}
+              onClose={handleCloseCadastro}
+            />
+          </div>
+        </div>
+      )}
+
       <LotesModal
         isOpen={isModalOpen}
         onClose={handleCloseLotesModal}
         produto={produtoSelecionado}
       />
+      
       <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}
         onClose={handleCloseDeleteModal}

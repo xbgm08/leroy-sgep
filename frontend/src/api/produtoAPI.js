@@ -1,5 +1,27 @@
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+export const createProduto = async (produtoData) => {
+    try {
+        const response = await fetch(`${API_URL}/produtos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(produtoData),
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Falha ao criar o produto');
+        }
+        
+        return await response.json(); 
+    } catch (error) {
+        console.error("Erro em createProduto:", error);
+        throw error; 
+    }
+};
+
 export const getProdutos = async () => {
     try {
         const response = await fetch(`${API_URL}/produtos/`);
@@ -8,7 +30,6 @@ export const getProdutos = async () => {
             throw new Error('Falha ao buscar produtos da API');
         }
         const data = await response.json();
-        console.log('Produtos carregados:', data);
         return data;
     } catch (error) {
         console.error(error);
