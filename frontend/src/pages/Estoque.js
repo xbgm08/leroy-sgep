@@ -10,6 +10,7 @@ import CadastroProduto from '../components/CadastrarProduto';
 const Estoque = () => {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
@@ -69,6 +70,34 @@ const Estoque = () => {
     return { texto: 'Seguro', classe: 'verde', legenda: 'Vence em mais de 90 dias' };
   };
 
+  const filtrarProdutos = () => {
+    if (!searchTerm.trim()) {
+      return produtos;
+    }
+
+    const termoBusca = searchTerm.toLowerCase().trim();
+
+    return produtos.filter(produto => {
+      const codigoLM = produto.codigo_lm?.toString().toLowerCase() || '';
+      const ean = produto.ean?.toString().toLowerCase() || '';
+      const nome = produto.nome_produto?.toLowerCase() || '';
+      const marca = produto.marca?.toLowerCase() || '';
+      const fornecedor = produto.fornecedor_nome?.toLowerCase() || '';
+
+      return (
+        codigoLM.includes(termoBusca) ||
+        ean.includes(termoBusca) ||
+        nome.includes(termoBusca) ||
+        marca.includes(termoBusca) ||
+        fornecedor.includes(termoBusca)
+      );
+    });
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   const handleOpenLotesModal = (produto) => {
     setProdutoSelecionado(produto);
     setIsModalOpen(true);
@@ -120,6 +149,8 @@ const Estoque = () => {
     return <div>Carregando dados do estoque...</div>;
   }
 
+  const produtosFiltrados = filtrarProdutos();
+
   return (
     <>
       <div className="titulo">
@@ -129,7 +160,12 @@ const Estoque = () => {
 
       <button className="fora" onClick={handleOpenCadastro}>Cadastrar Produto</button>
 
-      <input type="text" placeholder="Pesquisar" />
+      <input 
+        type="text" 
+        placeholder="Pesquisar por Código LM, EAN, Nome, Marca ou Fornecedor..." 
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
 
       <div className="tabela">
         <table>
@@ -150,10 +186,12 @@ const Estoque = () => {
           <tbody>
             {produtos.length === 0 ? (
               <tr>
-                <td colSpan="9">Nenhum produto encontrado.</td>
+                <td colSpan="10">
+                  {searchTerm ? 'Nenhum produto encontrado com este critério de busca.' : 'Nenhum produto encontrado.'}
+                </td>
               </tr>
             ) : (
-              produtos.map((produto) => {
+              produtosFiltrados.map((produto) => {
                 const validadeProxima = getValidadeMaisProxima(produto.lotes);
                 const statusInfo = getStatusEtiqueta(validadeProxima);
 
@@ -208,7 +246,7 @@ const Estoque = () => {
         onClose={handleCloseLotesModal}
         produto={produtoSelecionado}
       />
-      
+
       <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}
         onClose={handleCloseDeleteModal}
