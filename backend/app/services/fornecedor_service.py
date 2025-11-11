@@ -9,6 +9,7 @@ class FornecedorService:
         if self.db is None:
             raise ConnectionError("Falha na conexão com o MongoDB.")
         self.collection: Collection = self.db['fornecedores']
+        self.collection.create_index("cnpj", unique=True)
         
     def get_all(self) -> List[Fornecedor]:
         """Retorna todos os fornecedores cadastrados."""
@@ -16,7 +17,12 @@ class FornecedorService:
         return [Fornecedor(**data) for data in fornecedores_data]
 
     def create(self, fornecedor: Fornecedor) -> Fornecedor:
-        """Cria um novo fornecedor."""
+        """Cria um novo fornecedor."""        
+        if self.collection.find_one({"$or": [
+            {"cnpj": fornecedor.cnpj}
+        ]}):
+            raise ValueError("Fornecedor com este CNPJ já existe.")
+        
         fornecedor_data = fornecedor.model_dump()
         
         self.collection.insert_one(fornecedor_data)
