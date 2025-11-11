@@ -36,7 +36,7 @@ class Produto(BaseModel):
     @property
     def valor_estoque_calculado(self) -> float:
         """Calcula o valor total do estoque do produto (Preço Unit. * Estoque Total)"""
-        return self.preco_unit * self.estoque_calculado
+        return round(self.preco_unit * self.estoque_calculado, 2)
     
     @computed_field
     @property
@@ -45,7 +45,7 @@ class Produto(BaseModel):
         if self.estoque_reportado is None:
             return 0
             
-        return self.estoque_reportado - self.estoque_calculado
+        return round(self.preco_unit * self.estoque_reportado, 2)
     
     @computed_field
     @property

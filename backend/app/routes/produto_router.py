@@ -69,3 +69,14 @@ def delete_lote_data(codigo_lm: int, codigo_lote: str, service: ProdutoService =
     if not service.deletar_lote(codigo_lm, codigo_lote):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lote ou Produto não encontrado para exclusão")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.post("/importar/processar-pasta")
+def processar_pasta_de_importacao(service: ProdutoService = Depends(get_produto_service)):
+    """Processa todas as planilhas de produtos localizadas na pasta designada no servidor."""
+    try:
+        resultado = service.importar_produtos_from_excel()
+        return resultado
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro interno no processamento: {e}")
