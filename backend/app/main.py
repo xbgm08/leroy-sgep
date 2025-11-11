@@ -18,7 +18,7 @@ app = FastAPI(
 )
 
 origins = [
-    settings.FRONTEND_ORIGIN  # Usa a variável carregada do .env
+    settings.FRONTEND_ORIGIN
 ]
 
 app.add_middleware(

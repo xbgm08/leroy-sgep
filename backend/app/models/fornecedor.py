@@ -6,6 +6,7 @@ class Fornecedor(BaseModel):
     nome: str = Field(..., max_length=100)
     politica_devolucao: int
     contato: Optional[str] = None
+    status_forn : bool = Field(default=True)
     
     model_config = {
         "json_schema_extra": {
@@ -14,7 +15,8 @@ class Fornecedor(BaseModel):
                     "cnpj": "12345678000190",
                     "nome": "Master Química S.A.",
                     "politica_devolucao": 60,
-                    "contato": "contato@empresa.com"
+                    "contato": "contato@empresa.com",
+                    "status_forn": True
                 }
             ]
         }
