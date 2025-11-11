@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createProduto } from '../api/produtoAPI';
+import { getFornecedores } from '../api/fornecedorAPI';
 import '../styles/CadastroProduto.css';
 
 const initialState = {
@@ -19,12 +20,40 @@ const initialState = {
 
 const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
     const [formData, setFormData] = useState(initialState);
+    const [fornecedores, setFornecedores] = useState([]);
+    const [loadingFornecedores, setLoadingFornecedores] = useState(true);
+
+    useEffect(() => {
+        const carregarFornecedores = async () => {
+            try {
+                const dados = await getFornecedores();
+                setFornecedores(dados);
+            } catch (error) {
+                console.error('Erro ao carregar fornecedores:', error);
+            } finally {
+                setLoadingFornecedores(false);
+            }
+        };
+
+        carregarFornecedores();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prevState => ({
             ...prevState,
             [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleFornecedorChange = (e) => {
+        const cnpj = e.target.value;
+        const fornecedorSelecionado = fornecedores.find(f => f.cnpj === cnpj);
+        
+        setFormData(prevState => ({
+            ...prevState,
+            fornecedor_cnpj: cnpj,
+            fornecedor_nome: fornecedorSelecionado ? fornecedorSelecionado.nome : ""
         }));
     };
 
@@ -95,12 +124,25 @@ const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
 
             <div className="linha">
                 <div className="campo">
-                    <label htmlFor="fornecedor_cnpj">CNPJ do Fornecedor:</label>
-                    <input className="caixa" id="fornecedor_cnpj" name="fornecedor_cnpj" type="text" onChange={handleChange} value={formData.fornecedor_cnpj} placeholder="12345678000190" required />
-                </div>
-                <div className="campo">
-                    <label htmlFor="fornecedor_nome">Nome do Fornecedor:</label>
-                    <input className="caixa" id="fornecedor_nome" name="fornecedor_nome" type="text" onChange={handleChange} value={formData.fornecedor_nome} />
+                    <label htmlFor="fornecedor_cnpj">Fornecedor:</label>
+                    <select 
+                        className="caixa" 
+                        id="fornecedor_cnpj" 
+                        name="fornecedor_cnpj" 
+                        onChange={handleFornecedorChange} 
+                        value={formData.fornecedor_cnpj}
+                        required
+                        disabled={loadingFornecedores}
+                    >
+                        <option value="">
+                            {loadingFornecedores ? 'Carregando...' : 'Selecione um fornecedor'}
+                        </option>
+                        {fornecedores.map((fornecedor) => (
+                            <option key={fornecedor.cnpj} value={fornecedor.cnpj}>
+                                {fornecedor.nome} - {fornecedor.cnpj}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
