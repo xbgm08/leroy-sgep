@@ -11,9 +11,13 @@ const initialState = {
     ficha_tec: "",
     link_prod: "",
     cor: "",
+    secao: "",
+    cod_secao: "",
+    subsecao: "",
+    cod_subsecao: "",
     avs: false,
     preco_unit: "",
-    total_estoque: "",
+    estoque_calculado: "",
     fornecedor_cnpj: "",
     fornecedor_nome: ""
 };
@@ -68,10 +72,14 @@ const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
                 marca: formData.marca,
                 ficha_tec: formData.ficha_tec,
                 link_prod: formData.link_prod,
-                cor: formData.cor,
+                cor: formData.cor || null,
+                secao: formData.secao || null,
+                cod_secao: formData.cod_secao ? parseInt(formData.cod_secao, 10) : null,
+                subsecao: formData.subsecao || null,
+                cod_subsecao: formData.cod_subsecao ? parseInt(formData.cod_subsecao, 10) : null,
                 avs: formData.avs,
                 preco_unit: parseFloat(formData.preco_unit),
-                total_estoque: parseInt(formData.total_estoque, 10),
+                estoque_calculado: parseInt(formData.estoque_calculado, 10),
                 fornecedor_cnpj: formData.fornecedor_cnpj,
                 fornecedor_nome: formData.fornecedor_nome || null,
                 lotes: []
@@ -124,6 +132,28 @@ const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
 
             <div className="linha">
                 <div className="campo">
+                    <label htmlFor="cod_secao">Código da Seção:</label>
+                    <input className="caixa" id="cod_secao" name="cod_secao" type="number" onChange={handleChange} value={formData.cod_secao} />
+                </div>
+                <div className="campo">
+                    <label htmlFor="secao">Seção:</label>
+                    <input className="caixa" id="secao" name="secao" type="text" onChange={handleChange} value={formData.secao} maxLength="200" />
+                </div>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="cod_subsecao">Código da Subseção:</label>
+                    <input className="caixa" id="cod_subsecao" name="cod_subsecao" type="number" onChange={handleChange} value={formData.cod_subsecao} />
+                </div>
+                <div className="campo">
+                    <label htmlFor="subsecao">Subseção:</label>
+                    <input className="caixa" id="subsecao" name="subsecao" type="text" onChange={handleChange} value={formData.subsecao} maxLength="200" />
+                </div>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
                     <label htmlFor="fornecedor_cnpj">Fornecedor:</label>
                     <select 
                         className="caixa" 
@@ -152,8 +182,8 @@ const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
                     <input className="caixa" id="preco_unit" name="preco_unit" type="number" step="0.01" onChange={handleChange} value={formData.preco_unit} required />
                 </div>
                 <div className="campo">
-                    <label htmlFor="total_estoque">Estoque Inicial Total:</label>
-                    <input className="caixa" id="total_estoque" name="total_estoque" type="number" onChange={handleChange} value={formData.total_estoque} required />
+                    <label htmlFor="estoque_calculado">Estoque Inicial:</label>
+                    <input className="caixa" id="estoque_calculado" name="estoque_calculado" type="number" onChange={handleChange} value={formData.estoque_calculado} required />
                 </div>
             </div>
 

@@ -198,12 +198,12 @@ const Estoque = () => {
                 return (
                   <tr key={produto.codigo_lm}>
                     <td>{produto.codigo_lm}</td>
-                    <td>{produto.ean}</td>
+                    <td>{produto.ean || 'N/A'}</td>
                     <td>{produto.nome_produto}</td>
                     <td>{produto.marca}</td>
-                    <td>{produto.fornecedor_nome}</td>
-                    <td>R$ {produto.preco_unit}</td>
-                    <td>{produto.total_estoque}</td>
+                    <td>{produto.fornecedor_nome || 'N/A'}</td>
+                    <td>R$ {produto.preco_unit?.toFixed(2)}</td>
+                    <td>{produto.estoque_calculado}</td>
                     <td>{formatarData(validadeProxima)}</td>
                     <td className={`cor ${statusInfo.classe}`} title={statusInfo.legenda}>{statusInfo.texto}</td>
                     <td>
