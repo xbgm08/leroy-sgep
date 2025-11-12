@@ -45,7 +45,7 @@ class Produto(BaseModel):
         if self.estoque_reportado is None:
             return 0
             
-        return round(self.preco_unit * self.estoque_reportado, 2)
+        return self.estoque_reportado - self.estoque_calculado
     
     @computed_field
     @property
@@ -78,7 +78,7 @@ class Produto(BaseModel):
                     "fornecedor_cnpj": "12345678000190",
                     "lotes": [
                         {
-                            "codigo_lote": 1,
+                            "codigo_lote": "132ABC",
                             "data_fabricacao": "2023-01-15T00:00:00",
                             "data_validade": "2025-01-15T00:00:00",
                             "prazo_validade_meses": 24,
@@ -88,7 +88,7 @@ class Produto(BaseModel):
                             "valor_lote": 1575.00                          
                         },
                         {
-                            "codigo_lote": 2,
+                            "codigo_lote": "456DEF",
                             "data_fabricacao": "2023-03-10T00:00:00",
                             "data_validade": "2025-03-10T00:00:00",
                             "prazo_validade_meses": 24,
