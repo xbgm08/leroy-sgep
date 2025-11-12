@@ -37,7 +37,7 @@ class ProdutoService:
 
     def create(self, produto: Produto) -> Produto:
         """Cria um novo produto."""    
-        produto_data = produto.model_dump()
+        produto_data = produto.model_dump(exclude={'fornecedor_nome'})
         
         self.collection.insert_one(produto_data)
         
@@ -87,7 +87,7 @@ class ProdutoService:
         if not produto_atual:
             return None
         
-        update_data = produto.model_dump(exclude={'codigo_lm', 'lotes'}, exclude_unset=True)
+        update_data = produto.model_dump(exclude={'codigo_lm', 'lotes', 'fornecedor_nome'}, exclude_unset=True)
         
         if "preco_unit" in update_data and update_data["preco_unit"] != produto_atual.preco_unit:
             novo_preco_unit = update_data["preco_unit"]
@@ -135,7 +135,7 @@ class ProdutoService:
         elif lote_antigo.ativo is True:
             delta_quantidade = lote_update.quantidade_lote - lote_antigo.quantidade_lote
         
-        update_data = lote_update.model_dump(exclude={'codigo_lote'}, exclude_unset=True)
+        update_data = lote_update.model_dump(exclude={'codigo_lote', 'fornecedor_nome'}, exclude_unset=True)
         update_data["data_atualizacao_ativo"] = datetime.now(timezone.utc)
         update_data["valor_lote"] = produto_atual.preco_unit * lote_update.quantidade_lote
         update_data.pop('codigo_lote', None) 
