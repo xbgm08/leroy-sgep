@@ -40,7 +40,7 @@ const Estoque = () => {
   const getValidadeMaisProxima = (lotes) => {
     if (!lotes || lotes.length === 0) return null;
 
-    const lotesAtivos = lotes.filter(l => l.status === 'Ativo');
+    const lotesAtivos = lotes.filter(l => l.ativo === true);
     if (lotesAtivos.length === 0) return null;
 
     const dataMaisProxima = lotesAtivos.reduce((dataAntiga, loteAtual) => {
