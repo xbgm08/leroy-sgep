@@ -16,6 +16,20 @@ export const createProduto = async (produtoData) => {
     }
 };
 
+export const updateProduto = async (codigo_lm, produtoData) => {
+    try {
+        const response = await axios.put(`${API_URL}/produtos/${codigo_lm}`, produtoData, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Erro em updateProduto:", error.response?.data || error.message);
+        throw new Error(error.response?.data?.detail || 'Falha ao atualizar o produto');
+    }
+};
+
 export const getProdutos = async () => {
     try {
         const response = await axios.get(`${API_URL}/produtos/`);
