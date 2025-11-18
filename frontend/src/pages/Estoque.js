@@ -113,6 +113,20 @@ const Estoque = () => {
     setProdutoSelecionado(null);
   };
 
+  const handleLoteAtualizado = async () => {
+    await carregarDados();
+    
+    if (produtoSelecionado) {
+      const produtosAtualizados = await getProdutos();
+      const produtoAtualizado = produtosAtualizados.find(
+        p => p.codigo_lm === produtoSelecionado.codigo_lm
+      );
+      if (produtoAtualizado) {
+        setProdutoSelecionado(produtoAtualizado);
+      }
+    }
+  };
+
   const handleOpenDeleteModal = (produto) => {
     setProductToDelete(produto);
     setIsDeleteModalOpen(true);
@@ -268,6 +282,7 @@ const Estoque = () => {
         isOpen={isModalOpen}
         onClose={handleCloseLotesModal}
         produto={produtoSelecionado}
+        onLoteAtualizado={handleLoteAtualizado}
       />
 
       <DetalheProdutoModal

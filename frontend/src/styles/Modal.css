@@ -245,6 +245,29 @@
   background-color: #5a6268;
 }
 
+.btn-adicionar-lote {
+  background-color: #5ABC2B;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.btn-adicionar-lote:hover {
+  background-color: #48a023;
+}
+
+.modal-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
