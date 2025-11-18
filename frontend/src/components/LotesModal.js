@@ -45,7 +45,7 @@ const LotesModal = ({ isOpen, onClose, produto }) => {
                                         <td>{lote.quantidade_lote}</td>
                                         <td>{formatarData(lote.data_fabricacao)}</td>
                                         <td>{formatarData(lote.data_validade)}</td>
-                                        <td>{lote.status}</td>
+                                        <td>{lote.ativo ? "Ativo" : "Inativo"}</td>
                                         <td>
                                             <div className="modal-container-acoes">
                                                 <button className="modal-action-button edit" title='Editar Lote'>
