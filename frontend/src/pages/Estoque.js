@@ -19,6 +19,7 @@ const Estoque = () => {
   const [productToDelete, setProductToDelete] = useState(null);
 
   const [isCadastroOpen, setIsCadastroOpen] = useState(false);
+   const [produtoParaEditar, setProdutoParaEditar] = useState(null);
 
  const carregarDados = async () => {
     setLoading(true);
@@ -133,11 +134,18 @@ const Estoque = () => {
   };
 
   const handleOpenCadastro = () => {
+    setProdutoParaEditar(null);
+    setIsCadastroOpen(true);
+  };
+
+  const handleOpenEdicao = (produto) => {
+    setProdutoParaEditar(produto);
     setIsCadastroOpen(true);
   };
 
   const handleCloseCadastro = () => {
     setIsCadastroOpen(false);
+    setProdutoParaEditar(null);
   };
 
   const handleProdutoCadastrado = () => {
@@ -208,7 +216,7 @@ const Estoque = () => {
                     <td className={`cor ${statusInfo.classe}`} title={statusInfo.legenda}>{statusInfo.texto}</td>
                     <td>
                       <div className="container-acoes">
-                        <button className="action-button edit" title='Editar Produto'>
+                        <button className="action-button edit" title='Editar Produto' onClick={() => handleOpenEdicao(produto)}>
                           <FaEdit />
                         </button>
                         <button className="action-button delete" title='Excluir Produto' onClick={() => handleOpenDeleteModal(produto)}>
@@ -236,6 +244,7 @@ const Estoque = () => {
             <CadastroProduto 
               onProdutoCadastrado={handleProdutoCadastrado}
               onClose={handleCloseCadastro}
+              produtoParaEditar={produtoParaEditar}
             />
           </div>
         </div>

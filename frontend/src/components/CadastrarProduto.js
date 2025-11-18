@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createProduto } from '../api/produtoAPI';
+import { createProduto, updateProduto } from '../api/produtoAPI';
 import { getFornecedores } from '../api/fornecedorAPI';
 import '../styles/CadastroProduto.css';
 
@@ -22,10 +22,12 @@ const initialState = {
     fornecedor_nome: ""
 };
 
-const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
+const CadastroProduto = ({ onProdutoCadastrado, onClose, produtoParaEditar = null  }) => {
     const [formData, setFormData] = useState(initialState);
     const [fornecedores, setFornecedores] = useState([]);
     const [loadingFornecedores, setLoadingFornecedores] = useState(true);
+
+    const isEditMode = !!produtoParaEditar;
 
     useEffect(() => {
         const carregarFornecedores = async () => {
@@ -41,6 +43,29 @@ const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
 
         carregarFornecedores();
     }, []);
+
+    useEffect(() => {
+        if (produtoParaEditar) {
+            setFormData({
+                nome_produto: produtoParaEditar.nome_produto || "",
+                codigo_lm: produtoParaEditar.codigo_lm || "",
+                ean: produtoParaEditar.ean || "",
+                marca: produtoParaEditar.marca || "",
+                ficha_tec: produtoParaEditar.ficha_tec || "",
+                link_prod: produtoParaEditar.link_prod || "",
+                cor: produtoParaEditar.cor || "",
+                secao: produtoParaEditar.secao || "",
+                cod_secao: produtoParaEditar.cod_secao || "",
+                subsecao: produtoParaEditar.subsecao || "",
+                cod_subsecao: produtoParaEditar.cod_subsecao || "",
+                avs: produtoParaEditar.avs || false,
+                preco_unit: produtoParaEditar.preco_unit || "",
+                estoque_calculado: produtoParaEditar.estoque_calculado || "",
+                fornecedor_cnpj: produtoParaEditar.fornecedor_cnpj || "",
+                fornecedor_nome: produtoParaEditar.fornecedor_nome || ""
+            });
+        }
+    }, [produtoParaEditar]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -85,9 +110,14 @@ const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
                 lotes: []
             };
 
-            await createProduto(dadosParaAPI);
-            
-            alert('Produto cadastrado com sucesso!');
+            if (isEditMode) {
+                await updateProduto(produtoParaEditar.codigo_lm, dadosParaAPI);
+                alert('Produto atualizado com sucesso!');
+            } else {
+                await createProduto(dadosParaAPI);
+                alert('Produto cadastrado com sucesso!');
+            }
+
             onProdutoCadastrado(); 
             setFormData(initialState); 
 
@@ -99,7 +129,7 @@ const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
 
     return (
         <form onSubmit={handleSubmit} className="cadastro-form">
-            <h1>Cadastrar Produto</h1>
+            <h1>{isEditMode ? 'Editar Produto' : 'Cadastrar Produto'}</h1>
             
             <div className="linha">
                 <div className="campo">
@@ -211,7 +241,9 @@ const CadastroProduto = ({ onProdutoCadastrado, onClose }) => {
             </div>
 
             <div className="linha">
-                <button className="botao" type="submit">Adicionar</button>
+                <button className="botao" type="submit">
+                    {isEditMode ? 'Atualizar' : 'Adicionar'}
+                </button>
                 <button className="botao" type="button" onClick={onClose}>
                     Cancelar
                 </button>
