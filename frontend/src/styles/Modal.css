@@ -17,6 +17,8 @@
   border-radius: 8px;
   width: 80%;
   max-width: 900px;
+  max-height: 85vh;
+  overflow-y: auto;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   animation: fadeIn 0.3s ease-out;
 }
@@ -130,6 +132,117 @@
 }
 .btn-confirm-delete:hover {
   background-color: #c82333;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: #000;
+}
+
+.detalhe-section {
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.detalhe-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #5ABC2B;
+  padding-bottom: 8px;
+}
+
+.detalhe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.detalhe-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detalhe-item label {
+  font-weight: bold;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.detalhe-item span {
+  color: #333;
+  font-size: 1rem;
+  padding: 8px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.detalhe-links {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.link-externo {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #5ABC2B;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+  text-align: center;
+}
+
+.link-externo:hover {
+  background-color: #48a023;
+}
+
+.badge-avs-sim {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+  font-weight: bold;
+  padding: 5px 10px !important;
+  border-radius: 15px !important;
+  text-align: center;
+}
+
+.badge-avs-nao {
+  background-color: #6c757d !important;
+  color: white !important;
+  padding: 5px 10px !important;
+  border-radius: 15px !important;
+  text-align: center;
+}
+
+.modal-footer .botao {
+  border: none;
+  border-radius: 15px;
+  height: 40px;
+  width: 120px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #6c757d;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.modal-footer .botao:hover {
+  background-color: #5a6268;
 }
 
 @keyframes fadeIn {

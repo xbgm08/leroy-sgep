@@ -6,6 +6,7 @@ import { getProdutos, deleteProduto } from '../api/produtoAPI';
 import LotesModal from '../components/LotesModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import CadastroProduto from '../components/CadastrarProduto';
+import DetalheProdutoModal from '../components/DetalheProdutoModal';
 
 const Estoque = () => {
   const [produtos, setProdutos] = useState([]);
@@ -19,7 +20,10 @@ const Estoque = () => {
   const [productToDelete, setProductToDelete] = useState(null);
 
   const [isCadastroOpen, setIsCadastroOpen] = useState(false);
-   const [produtoParaEditar, setProdutoParaEditar] = useState(null);
+  const [produtoParaEditar, setProdutoParaEditar] = useState(null);
+
+  const [isDetalheModalOpen, setIsDetalheModalOpen] = useState(false);
+  const [produtoDetalhe, setProdutoDetalhe] = useState(null);
 
  const carregarDados = async () => {
     setLoading(true);
@@ -153,6 +157,16 @@ const Estoque = () => {
     setIsCadastroOpen(false);
   };
 
+  const handleOpenDetalheModal = (produto) => {
+    setProdutoDetalhe(produto);
+    setIsDetalheModalOpen(true);
+  };
+
+  const handleCloseDetalheModal = () => {
+    setIsDetalheModalOpen(false);
+    setProdutoDetalhe(null);
+  };
+
   if (loading) {
     return <div>Carregando dados do estoque...</div>;
   }
@@ -225,7 +239,7 @@ const Estoque = () => {
                         <button className="action-button view" title='Ver lotes' onClick={() => handleOpenLotesModal(produto)}>
                           <FaListUl />
                         </button>
-                        <button className="action-button info" title="Ficha Técnica">
+                        <button className="action-button info" title="Detalhes do Produto" onClick={() => handleOpenDetalheModal(produto)}>
                           <FaInfoCircle />
                         </button>
                       </div>
@@ -254,6 +268,12 @@ const Estoque = () => {
         isOpen={isModalOpen}
         onClose={handleCloseLotesModal}
         produto={produtoSelecionado}
+      />
+
+      <DetalheProdutoModal
+        isOpen={isDetalheModalOpen}
+        onClose={handleCloseDetalheModal}
+        produto={produtoDetalhe}
       />
 
       <ConfirmDeleteModal
