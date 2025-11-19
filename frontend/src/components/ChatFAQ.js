@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaPaperPlane, FaComments, FaTimes } from 'react-icons/fa';
+import { FaPaperPlane, FaComments, FaTimes, FaSpinner } from 'react-icons/fa';
+import { getMelhorResposta, listarConhecimentos } from '../api/conhecimentoAPI';
 import '../styles/ChatFAQ.css';
 
 const ChatFAQ = ({ isOpen, onClose }) => {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
+    const [perguntasSugeridas, setPerguntasSugeridas] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingSugestoes, setIsLoadingSugestoes] = useState(false);
     const messagesEndRef = useRef(null);
 
-    const perguntasSugeridas = [
-        "Qual o valor dos produtos com validade 'segura' em risco?",
-        "Quais são as categorias de etiquetas disponíveis?",
-        "O que significa os três pontos no documento?",
-        "Como adicionar um novo produto?",
-        "Como gerenciar lotes de produtos?"
-    ];
+    useEffect(() => {
+        if (isOpen && perguntasSugeridas.length === 0) {
+            carregarPerguntasSugeridas();
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         scrollToBottom();
@@ -23,7 +25,40 @@ const ChatFAQ = ({ isOpen, onClose }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
-    const handleSendMessage = (mensagem) => {
+    const carregarPerguntasSugeridas = async () => {
+        setIsLoadingSugestoes(true);
+        try {
+            const conhecimentos = await listarConhecimentos(true);
+            
+            if (conhecimentos && conhecimentos.length > 0) {
+                const sugestoes = conhecimentos
+                    .sort((a, b) => (b.visualizacoes || 0) - (a.visualizacoes || 0))
+                    .slice(0, 5)
+                    .map(item => ({
+                        titulo: item.titulo,
+                        visualizacoes: item.visualizacoes || 0,
+                        categoria: item.categoria
+                    }));
+                
+                setPerguntasSugeridas(sugestoes);
+            } else {
+                setPerguntasSugeridas([
+                    { titulo: "Como adicionar um novo produto?", visualizacoes: 0 },
+                    { titulo: "Como gerenciar lotes de produtos?", visualizacoes: 0 }
+                ]);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar perguntas:', error);
+            setPerguntasSugeridas([
+                { titulo: "Como adicionar um novo produto?", visualizacoes: 0 },
+                { titulo: "Como gerenciar lotes de produtos?", visualizacoes: 0 }
+            ]);
+        } finally {
+            setIsLoadingSugestoes(false);
+        }
+    };
+
+    const handleSendMessage = async (mensagem) => {
         if (!mensagem.trim()) return;
 
         const novaMensagem = {
@@ -34,40 +69,53 @@ const ChatFAQ = ({ isOpen, onClose }) => {
         };
 
         setMessages(prev => [...prev, novaMensagem]);
+        setInputValue('');
+        setIsLoading(true);
 
-        setTimeout(() => {
+        try {
+            const resultado = await getMelhorResposta(mensagem);
+
+            let respostaTexto;
+            if (resultado && resultado.conhecimento) {
+                respostaTexto = resultado.conhecimento.resposta;
+                
+                if (resultado.score < 50) {
+                    respostaTexto += `\n\n_Relevância: ${resultado.score.toFixed(0)}% - Tente reformular para obter uma resposta mais precisa._`;
+                }
+            } else {
+                respostaTexto = "Desculpe, não encontrei uma resposta relevante para sua pergunta. Pode tentar reformular ou escolher uma das perguntas sugeridas?";
+            }
+
             const respostaBot = {
                 id: Date.now() + 1,
-                texto: gerarResposta(mensagem),
+                texto: respostaTexto,
                 tipo: 'bot',
                 timestamp: new Date()
             };
-            setMessages(prev => [...prev, respostaBot]);
-        }, 1000);
 
-        setInputValue('');
-    };
+            setTimeout(() => {
+                setMessages(prev => [...prev, respostaBot]);
+                setIsLoading(false);
+            }, 500); 
 
-    const gerarResposta = (pergunta) => {
-        const respostas = {
-            "validade": "Os produtos com validade 'segura' são aqueles que vencem em mais de 90 dias. Você pode consultar o valor total no painel de estoque.",
-            "etiquetas": "As categorias de etiquetas são: Verde (Seguro), Amarelo (Atenção), Laranja (Crítico), Vermelho (Vencido) e Preto (Sem Lotes).",
-            "três pontos": "Os três pontos no documento indicam o menu de ações, onde você pode editar, excluir ou visualizar mais detalhes.",
-            "adicionar produto": "Para adicionar um produto, clique no botão 'Cadastrar Produto' na página de Estoque e preencha o formulário.",
-            "lotes": "Para gerenciar lotes, clique no ícone de lista na linha do produto. Lá você pode adicionar, editar ou excluir lotes."
-        };
+        } catch (error) {
+            console.error('Erro ao buscar resposta:', error);
+            
+            const respostaErro = {
+                id: Date.now() + 1,
+                texto: "Desculpe, ocorreu um erro ao processar sua pergunta. Por favor, tente novamente.",
+                tipo: 'bot',
+                timestamp: new Date()
+            };
 
-        const chave = Object.keys(respostas).find(key => 
-            pergunta.toLowerCase().includes(key)
-        );
-
-        return chave 
-            ? respostas[chave] 
-            : "Desculpe, não entendi sua pergunta. Pode reformular ou escolher uma das perguntas sugeridas?";
+            setMessages(prev => [...prev, respostaErro]);
+            setIsLoading(false);
+        }
     };
 
     const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
             handleSendMessage(inputValue);
         }
     };
@@ -81,13 +129,18 @@ const ChatFAQ = ({ isOpen, onClose }) => {
     return (
         <>
             <div className="chat-overlay" onClick={onClose}></div>
+
             <div className={`chat-sidebar ${isOpen ? 'chat-sidebar-open' : ''}`}>
                 <div className="chat-header">
                     <h2>
                         <FaComments className="chat-icon" />
-                        Ajuda SGEP
+                        Assistente Virtual
                     </h2>
-                    <button className="chat-close-btn" onClick={onClose}>
+                    <button 
+                        className="chat-close-btn" 
+                        onClick={onClose}
+                        aria-label="Fechar chat"
+                    >
                         <FaTimes />
                     </button>
                 </div>
@@ -106,23 +159,46 @@ const ChatFAQ = ({ isOpen, onClose }) => {
                                     </span>
                                 </div>
                             ))}
+                            
+                            {isLoading && (
+                                <div className="mensagem bot loading">
+                                    <FaSpinner className="spinner" />
+                                    <span>Pensando...</span>
+                                </div>
+                            )}
+                            
                             <div ref={messagesEndRef} />
                         </div>
                     ) : (
                         <div className="perguntas-sugeridas">
-                            <h3>Perguntas Frequentes:</h3>
-                            {perguntasSugeridas.map((pergunta, index) => (
-                                <div 
-                                    key={index} 
-                                    className="pergunta-card"
-                                    onClick={() => handleSendMessage(pergunta)}
-                                >
-                                    <p>{pergunta}</p>
-                                    <button className="btn-enviar-sugestao">
-                                        Enviar <FaPaperPlane className="icon-enviar" />
-                                    </button>
-                                </div>
-                            ))}
+                            <h3>📌 Perguntas Frequentes:</h3>
+                            {isLoadingSugestoes ? (
+                                <p className="loading-sugestoes">
+                                    <FaSpinner className="spinner" /> Carregando sugestões...
+                                </p>
+                            ) : perguntasSugeridas.length > 0 ? (
+                                perguntasSugeridas.map((pergunta, index) => (
+                                    <div 
+                                        key={index} 
+                                        className="pergunta-card"
+                                        onClick={() => handleSendMessage(pergunta.titulo)}
+                                    >
+                                        <div className="pergunta-content">
+                                            <p>{pergunta.titulo}</p>
+                                            {pergunta.visualizacoes > 0 && (
+                                                <span className="badge-visualizacoes">
+                                                    👁️ {pergunta.visualizacoes}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {pergunta.categoria && (
+                                            <span className="badge-categoria">{pergunta.categoria}</span>
+                                        )}
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="sem-sugestoes">Nenhuma sugestão disponível.</p>
+                            )}
                         </div>
                     )}
                 </div>
@@ -135,13 +211,14 @@ const ChatFAQ = ({ isOpen, onClose }) => {
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={handleKeyPress}
+                        disabled={isLoading}
                     />
                     <button 
                         className="btn-enviar"
                         onClick={() => handleSendMessage(inputValue)}
-                        disabled={!inputValue.trim()}
+                        disabled={!inputValue.trim() || isLoading}
                     >
-                        <FaPaperPlane />
+                        {isLoading ? <FaSpinner className="spinner" /> : <FaPaperPlane />}
                     </button>
                 </div>
             </div>
