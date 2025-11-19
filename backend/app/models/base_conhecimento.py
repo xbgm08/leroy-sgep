@@ -12,6 +12,7 @@ class BaseConhecimento(BaseModel):
     keywords: List[str]
     categoria: Optional[str] = Field(None, max_length=50)
     ativo: bool = Field(default=True)
+    visualizacoes: int
 
 class ConhecimentoMatch(BaseModel):
     """

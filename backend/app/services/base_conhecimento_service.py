@@ -185,11 +185,26 @@ class BaseConhecimentoService:
         
         return resultados[:max_resultados]
     
+    def incrementar_visualizacao(self, id: str) -> bool:
+        """Incrementa contador de visualizações"""
+        try:
+            result = self.collection.update_one(
+                {"_id": ObjectId(id)},
+                {
+                    "$inc": {"visualizacoes": 1}
+                }
+            )
+            return result.modified_count == 1
+        except Exception:
+            return False
+    
     def get_melhor_resposta(self, mensagem: str) -> Optional[ConhecimentoMatch]:
         """Obtém a melhor resposta para a mensagem dada."""
         resultados = self.buscar_resposta(mensagem, max_resultados=1)
         
         if resultados:
+            if resultados[0].conhecimento.id:
+                self.incrementar_visualizacao(resultados[0].conhecimento.id)
             return resultados[0]
         
         return None
