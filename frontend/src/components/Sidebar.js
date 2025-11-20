@@ -1,25 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { FaChartLine, FaBoxes, FaTruck, FaCode, FaCog } from 'react-icons/fa';
 import '../styles/Sidebar.css';
 import logoLeroy from '../assets/images/leroy.png';
-import iconDashboard1 from '../assets/images/dashboard1.png';
-import iconDashboard2 from '../assets/images/dashboard2.png';
-import iconBoxes1 from '../assets/images/boxes1.png';
-import iconBoxes2 from '../assets/images/boxes2.png';
-import iconApi1 from '../assets/images/api1.png';
-import iconApi2 from '../assets/images/api2.png';
-import iconConfig1 from '../assets/images/config1.png';
 
-const SidebarButton = ({ icon1, icon2, label, to }) => {
-    const [currentIcon, setCurrentIcon] = useState(icon1);
+const SidebarButton = ({ icon: Icon, label, to }) => {
+    const location = useLocation();
+    const isActive = location.pathname === to;
+
     return (
-       <Link 
+        <Link 
             to={to} 
-            className="botao"
-            onMouseEnter={() => setCurrentIcon(icon2)}
-            onMouseLeave={() => setCurrentIcon(icon1)}
+            className={`botao ${isActive ? 'active' : ''}`}
         >
-            <img className="img_buttao" src={currentIcon} alt={label} />
+            <Icon className="icon-buttao" />
             <p>{label}</p>
         </Link>
     );
@@ -33,10 +27,11 @@ const Sidebar = () => {
                 <h2>LOSS PREVENTION</h2>
             </div>
 
-            <SidebarButton icon1={iconDashboard1} icon2={iconDashboard2} label="Dashboards" to="/" />
-            <SidebarButton icon1={iconBoxes1} icon2={iconBoxes2} label="Estoque" to="/estoque" />
-            <SidebarButton icon1={iconApi1} icon2={iconApi2} label="API" to="/api" />
-            <SidebarButton icon1={iconConfig1} icon2={iconConfig1} label="Configurações da Conta" to="/configuracoes" />
+            <SidebarButton icon={FaChartLine} label="Dashboards" to="/" />
+            <SidebarButton icon={FaBoxes} label="Estoque" to="/estoque" />
+            <SidebarButton icon={FaTruck} label="Fornecedores" to="/fornecedores" />
+            <SidebarButton icon={FaCode} label="API" to="/api" />
+            <SidebarButton icon={FaCog} label="Configurações da Conta" to="/configuracoes" />
 
             <hr />
         </div>
