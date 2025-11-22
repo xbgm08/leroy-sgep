@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaChartLine, FaBoxes, FaTruck, FaCode, FaCog } from 'react-icons/fa';
+import { FaChartLine, FaBoxes, FaTruck, FaBrain, FaCode, FaCog } from 'react-icons/fa';
 import '../styles/Sidebar.css';
 import logoLeroy from '../assets/images/leroy.png';
 
@@ -9,8 +9,8 @@ const SidebarButton = ({ icon: Icon, label, to }) => {
     const isActive = location.pathname === to;
 
     return (
-        <Link 
-            to={to} 
+        <Link
+            to={to}
             className={`botao ${isActive ? 'active' : ''}`}
         >
             <Icon className="icon-buttao" />
@@ -30,8 +30,8 @@ const Sidebar = () => {
             <SidebarButton icon={FaChartLine} label="Dashboards" to="/" />
             <SidebarButton icon={FaBoxes} label="Estoque" to="/estoque" />
             <SidebarButton icon={FaTruck} label="Fornecedores" to="/fornecedores" />
+            <SidebarButton icon={FaBrain} label="Base de Conhecimento" to="/base-conhecimento" />
             <SidebarButton icon={FaCode} label="API" to="/api" />
-            <SidebarButton icon={FaCog} label="Configurações da Conta" to="/configuracoes" />
 
             <hr />
         </div>

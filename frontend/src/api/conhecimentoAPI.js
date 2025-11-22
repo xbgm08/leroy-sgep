@@ -44,6 +44,16 @@ export const listarConhecimentos = async (apenasAtivos = true) => {
     }
 };
 
+export const getConhecimentoById = async (id) => {
+    try {
+        const response = await axios.get(`${API_URL}/base-conhecimento/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar conhecimento:', error);
+        throw error;
+    }
+};
+
 export const criarConhecimento = async (conhecimento) => {
     try {
         const response = await axios.post(`${API_URL}/base-conhecimento`, conhecimento);
