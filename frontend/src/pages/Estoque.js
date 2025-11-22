@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrashAlt, FaListUl, FaInfoCircle } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaListUl, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaTimesCircle, FaClock } from 'react-icons/fa';
 import '../styles/Estoque.css';
 import { getProdutos, deleteProduto } from '../api/produtoAPI';
 import LotesModal from '../components/LotesModal';
@@ -62,16 +62,39 @@ const Estoque = () => {
   };
 
   const getStatusEtiqueta = (dataValidade) => {
-    if (!dataValidade) return { texto: 'Sem Lotes', classe: 'preto' };
+    if (!dataValidade) return { 
+      texto: 'Sem Lotes', 
+      classe: 'preto',
+      icone: <FaClock />
+    };
 
     const hoje = new Date();
     const diffTime = dataValidade.getTime() - hoje.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return { texto: 'Vencido', classe: 'vermelho' };
-    if (diffDays <= 30) return { texto: 'Crítico', classe: 'laranja', legenda: 'Vence em até 30 dias' };
-    if (diffDays <= 90) return { texto: 'Atenção', classe: 'amarelo', legenda: 'Vence em até 90 dias' };
-    return { texto: 'Seguro', classe: 'verde', legenda: 'Vence em mais de 90 dias' };
+    if (diffDays < 0) return { 
+      texto: 'Vencido', 
+      classe: 'vermelho',
+      icone: <FaTimesCircle />
+    };
+    if (diffDays <= 30) return { 
+      texto: 'Crítico', 
+      classe: 'laranja', 
+      legenda: 'Vence em até 30 dias',
+      icone: <FaExclamationTriangle />
+    };
+    if (diffDays <= 90) return { 
+      texto: 'Atenção', 
+      classe: 'amarelo', 
+      legenda: 'Vence em até 90 dias',
+      icone: <FaExclamationTriangle />
+    };
+    return { 
+      texto: 'Seguro', 
+      classe: 'verde', 
+      legenda: 'Vence em mais de 90 dias',
+      icone: <FaCheckCircle />
+    };
   };
 
   const filtrarProdutos = () => {
@@ -245,7 +268,7 @@ const Estoque = () => {
                     <td>{formatarData(validadeProxima)}</td>
                     <td>
                       <span className={`estoque-status ${statusInfo.classe}`} title={statusInfo.legenda}>
-                        {statusInfo.texto}
+                        {statusInfo.icone} {statusInfo.texto}
                       </span>
                     </td>
                     <td>
