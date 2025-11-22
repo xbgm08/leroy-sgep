@@ -56,7 +56,7 @@ export const getConhecimentoById = async (id) => {
 
 export const criarConhecimento = async (conhecimento) => {
     try {
-        const response = await axios.post(`${API_URL}/base-conhecimento`, conhecimento);
+        const response = await axios.post(`${API_URL}/base-conhecimento/`, conhecimento);
         return response.data;
     } catch (error) {
         console.error('Erro ao criar conhecimento:', error);
