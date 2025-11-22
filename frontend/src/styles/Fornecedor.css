@@ -1,0 +1,215 @@
+/* Título da página */
+.fornecedor-titulo {
+  color: rgb(42, 42, 42);
+  margin-bottom: 20px;
+}
+
+.fornecedor-titulo h2 {
+  margin-bottom: 5px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.fornecedor-titulo h4 {
+  margin: 0;
+  color: #555;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+/* Botão de cadastrar */
+.fornecedor-btn-cadastrar {
+  border: none;
+  border-radius: 15px;
+  height: 40px;
+  width: 200px; 
+  float: right; 
+  margin-bottom: 20px;
+  background-color: #5ABC2B;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: opacity 0.3s ease;
+}
+
+.fornecedor-btn-cadastrar:hover {
+  opacity: 0.9;
+}
+
+/* Input de busca */
+.fornecedor-search-input {
+  border: none;
+  border-radius: 15px;
+  height: 50px;
+  width: 100%; 
+  padding: 0 20px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.fornecedor-search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(90, 188, 43, 0.3);
+}
+
+/* Container da tabela */
+.fornecedor-tabela {
+  background-color: #ffffff; 
+  border-radius: 8px;
+  overflow: hidden; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+/* Tabela */
+.fornecedor-tabela table {
+  width: 100%;
+  border-collapse: collapse; 
+}
+
+.fornecedor-tabela th,
+.fornecedor-tabela td {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #eee; 
+  font-size: 0.8rem;
+}
+
+.fornecedor-tabela th {
+  background-color: #f8f8f8;
+  font-weight: bold;
+  color: #333;  
+}
+
+.fornecedor-tabela tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.fornecedor-tabela tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Badges de status */
+.fornecedor-status {
+  font-weight: bold;
+  text-align: center;
+  border-radius: 15px;
+  padding: 5px 10px;
+  display: inline-block;
+}
+
+.fornecedor-status.verde { 
+  background-color: lightgreen; 
+  color: darkgreen; 
+}
+
+.fornecedor-status.vermelho { 
+  background-color: lightcoral; 
+  color: darkred; 
+}
+
+/* Container de ações */
+.fornecedor-container-acoes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Botões de ação */
+.fornecedor-action-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem; 
+  padding: 5px;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.fornecedor-action-button:hover {
+  transform: scale(1.2);
+}
+
+.fornecedor-action-button.edit {
+  color: #007bff; 
+}
+
+.fornecedor-action-button.edit:hover {
+  color: #0056b3;
+}
+
+.fornecedor-action-button.delete {
+  color: #dc3545; 
+}
+
+.fornecedor-action-button.delete:hover {
+  color: #a71d2a;
+}
+
+/* Sidebar overlay */
+.fornecedor-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Sidebar de cadastro */
+.fornecedor-sidebar-cadastro {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100%;
+  background-color: #d3d3d3;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  z-index: 1000;
+  animation: fornecedorSlideIn 0.3s ease-out;
+}
+
+@keyframes fornecedorSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Mensagem de tabela vazia */
+.fornecedor-tabela tbody tr td[colspan] {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fornecedor-btn-cadastrar {
+    width: 100%;
+    float: none;
+  }
+
+  .fornecedor-sidebar-cadastro {
+    width: 100%;
+  }
+
+  .fornecedor-tabela {
+    overflow-x: auto;
+  }
+
+  .fornecedor-tabela table {
+    min-width: 800px;
+  }
+}

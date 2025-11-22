@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import CadastrarFornecedor from '../components/CadastrarFornecedor';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import { getFornecedores, deleteFornecedor } from '../api/fornecedorAPI';
-import '../styles/Estoque.css';
+import '../styles/Fornecedor.css';
 
 const Fornecedores = () => {
     const [fornecedores, setFornecedores] = useState([]);
@@ -104,23 +104,24 @@ const Fornecedores = () => {
 
     return (
         <>
-            <div className="titulo">
+            <div className="fornecedor-titulo">
                 <h2>Fornecedores</h2>
                 <h4>Aba de Fornecedores</h4>
             </div>
 
-            <button className="fora" onClick={handleOpenCadastro}>
+            <button className="fornecedor-btn-cadastrar" onClick={handleOpenCadastro}>
                 Cadastrar Fornecedor
             </button>
 
             <input
+                className="fornecedor-search-input"
                 type="text"
                 placeholder="Pesquisar por Nome, CNPJ ou Contato..."
                 value={searchTerm}
                 onChange={handleSearchChange}
             />
 
-            <div className="tabela">
+            <div className="fornecedor-tabela">
                 <table>
                     <thead>
                         <tr>
@@ -149,25 +150,25 @@ const Fornecedores = () => {
                                     <td>{fornecedor.contato || '-'}</td>
                                     <td>{fornecedor.politica_devolucao} dias</td>
                                     <td>
-                                        <span className={`cor ${fornecedor.status_forn ? 'verde' : 'vermelho'}`}>
+                                        <span className={`fornecedor-status ${fornecedor.status_forn ? 'verde' : 'vermelho'}`}>
                                             {fornecedor.status_forn ? 'Ativo' : 'Inativo'}
                                         </span>
                                     </td>
                                     <td>
-                                        <div className="container-acoes">
+                                        <div className="fornecedor-container-acoes">
                                             <button 
-                                                className="action-button edit" 
+                                                className="fornecedor-action-button edit" 
                                                 title="Editar Fornecedor"
                                                 onClick={() => handleOpenEdicao(fornecedor)}
                                             >
                                                 <FaEdit />
                                             </button>
                                             <button 
-                                                className="action-button delete" 
+                                                className="fornecedor-action-button delete" 
                                                 title="Excluir Fornecedor"
                                                 onClick={() => handleOpenDeleteModal(fornecedor)}
                                             >
-                                                <FaTrash />
+                                                <FaTrashAlt />
                                             </button>
                                         </div>
                                     </td>
@@ -179,8 +180,8 @@ const Fornecedores = () => {
             </div>
 
             {showCadastro && (
-                <div className="sidebar-overlay" onClick={handleCloseCadastro}>
-                    <div className="sidebar-cadastro" onClick={(e) => e.stopPropagation()}>
+                <div className="fornecedor-sidebar-overlay" onClick={handleCloseCadastro}>
+                    <div className="fornecedor-sidebar-cadastro" onClick={(e) => e.stopPropagation()}>
                         <CadastrarFornecedor
                             onSuccess={handleCadastroSuccess}
                             onClose={handleCloseCadastro}
