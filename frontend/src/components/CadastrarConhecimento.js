@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { criarConhecimento, atualizarConhecimento } from '../api/conhecimentoAPI';
-import '../styles/CadastroProduto.css';
+import '../styles/CadastrarConhecimento.css';
 
 const initialState = {
     titulo: '',
     resposta: '',
-    keywords: '',
+    keywords: [],
     categoria: '',
     ativo: true
 };
 
 const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }) => {
     const [formData, setFormData] = useState(initialState);
+    const [keywordInput, setKeywordInput] = useState('');
 
     const isEditMode = !!conhecimentoToEdit;
 
@@ -20,7 +21,7 @@ const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }
             setFormData({
                 titulo: conhecimentoToEdit.titulo || '',
                 resposta: conhecimentoToEdit.resposta || '',
-                keywords: conhecimentoToEdit.keywords?.join(', ') || '',
+                keywords: conhecimentoToEdit.keywords || [],
                 categoria: conhecimentoToEdit.categoria || '',
                 ativo: conhecimentoToEdit.ativo ?? true
             });
@@ -36,17 +37,41 @@ const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }
         }));
     };
 
+    const handleKeywordInputChange = (e) => {
+        setKeywordInput(e.target.value);
+    };
+
+    const handleKeywordKeyDown = (e) => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addKeyword();
+        }
+    };
+
+    const addKeyword = () => {
+        const trimmedKeyword = keywordInput.trim().replace(/,/g, '');
+        
+        if (trimmedKeyword && !formData.keywords.includes(trimmedKeyword)) {
+            setFormData(prevState => ({
+                ...prevState,
+                keywords: [...prevState.keywords, trimmedKeyword]
+            }));
+            setKeywordInput('');
+        }
+    };
+
+    const removeKeyword = (indexToRemove) => {
+        setFormData(prevState => ({
+            ...prevState,
+            keywords: prevState.keywords.filter((_, index) => index !== indexToRemove)
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            // Processa keywords: separa por vírgula e remove espaços extras
-            const keywordsArray = formData.keywords
-                .split(',')
-                .map(k => k.trim())
-                .filter(k => k.length > 0);
-
-            if (keywordsArray.length === 0) {
+            if (formData.keywords.length === 0) {
                 alert('Adicione pelo menos uma palavra-chave.');
                 return;
             }
@@ -54,7 +79,7 @@ const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }
             const conhecimentoData = {
                 titulo: formData.titulo.trim(),
                 resposta: formData.resposta.trim(),
-                keywords: keywordsArray,
+                keywords: formData.keywords,
                 categoria: formData.categoria.trim() || null,
                 ativo: formData.ativo,
                 visualizacoes: conhecimentoToEdit?.visualizacoes || 0
@@ -70,6 +95,7 @@ const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }
 
             onSuccess();
             setFormData(initialState);
+            setKeywordInput('');
 
         } catch (error) {
             console.error('Erro ao salvar conhecimento:', error);
@@ -82,14 +108,14 @@ const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="cadastro-form">
+        <form onSubmit={handleSubmit} className="conhecimento-cadastro-form">
             <h1>{isEditMode ? 'Editar Conhecimento' : 'Cadastrar Conhecimento'}</h1>
             
-            <div className="linha">
-                <div className="campo">
+            <div className="conhecimento-linha">
+                <div className="conhecimento-campo">
                     <label htmlFor="titulo">Título (Pergunta):</label>
                     <input 
-                        className="caixa" 
+                        className="conhecimento-input" 
                         id="titulo" 
                         name="titulo" 
                         type="text" 
@@ -102,11 +128,11 @@ const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }
                 </div>
             </div>
 
-            <div className="linha">
-                <div className="campo">
+            <div className="conhecimento-linha">
+                <div className="conhecimento-campo">
                     <label htmlFor="resposta">Resposta:</label>
                     <textarea 
-                        className="caixa" 
+                        className="conhecimento-input" 
                         id="resposta" 
                         name="resposta" 
                         onChange={handleChange} 
@@ -115,38 +141,54 @@ const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }
                         maxLength="2000"
                         rows="6"
                         required 
-                        style={{ resize: 'vertical', fontFamily: 'inherit' }}
                     />
-                    <small style={{ color: '#666' }}>
+                    <small className="conhecimento-helper-text">
                         {formData.resposta.length}/2000 caracteres
                     </small>
                 </div>
             </div>
 
-            <div className="linha">
-                <div className="campo">
-                    <label htmlFor="keywords">Palavras-chave (separadas por vírgula):</label>
-                    <input 
-                        className="caixa" 
-                        id="keywords" 
-                        name="keywords" 
-                        type="text" 
-                        onChange={handleChange} 
-                        value={formData.keywords}
-                        placeholder="Ex: produto, cadastrar, adicionar, novo"
-                        required 
-                    />
-                    <small style={{ color: '#666' }}>
-                        Use vírgulas para separar. Exemplo: produto, estoque, cadastro
+            <div className="conhecimento-linha">
+                <div className="conhecimento-campo">
+                    <label htmlFor="keywords">Palavras-chave:</label>
+                    <div className="conhecimento-keywords-container">
+                        <div className="conhecimento-keywords-tags">
+                            {formData.keywords.map((keyword, index) => (
+                                <span key={index} className="conhecimento-keyword-tag">
+                                    {keyword}
+                                    <button
+                                        type="button"
+                                        className="conhecimento-keyword-remove"
+                                        onClick={() => removeKeyword(index)}
+                                        aria-label={`Remover ${keyword}`}
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                        <input 
+                            className="conhecimento-input" 
+                            id="keywords" 
+                            type="text" 
+                            value={keywordInput}
+                            onChange={handleKeywordInputChange}
+                            onKeyDown={handleKeywordKeyDown}
+                            onBlur={addKeyword}
+                            placeholder={formData.keywords.length === 0 ? "Digite e pressione Enter ou vírgula..." : "Adicionar mais..."}
+                        />
+                    </div>
+                    <small className="conhecimento-helper-text">
+                        Pressione Enter ou vírgula para adicionar. {formData.keywords.length} palavra(s)-chave adicionada(s).
                     </small>
                 </div>
             </div>
 
-            <div className="linha">
-                <div className="campo">
+            <div className="conhecimento-linha">
+                <div className="conhecimento-campo">
                     <label htmlFor="categoria">Categoria (opcional):</label>
                     <input 
-                        className="caixa" 
+                        className="conhecimento-input" 
                         id="categoria" 
                         name="categoria" 
                         type="text" 
@@ -158,8 +200,8 @@ const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }
                 </div>
             </div>
 
-            <div className="linha">
-                <div className="campo">
+            <div className="conhecimento-linha">
+                <div className="conhecimento-campo">
                     <label htmlFor="ativo">
                         <input 
                             type="checkbox" 
@@ -173,11 +215,11 @@ const CadastrarConhecimento = ({ onSuccess, onClose, conhecimentoToEdit = null }
                 </div>
             </div>
 
-            <div className="linha">
-                <button className="botao" type="submit">
+            <div className="conhecimento-btn-container">
+                <button className="conhecimento-botao conhecimento-botao-submit" type="submit">
                     {isEditMode ? 'Atualizar' : 'Adicionar'}
                 </button>
-                <button className="botao" type="button" onClick={onClose}>
+                <button className="conhecimento-botao conhecimento-botao-cancelar" type="button" onClick={onClose}>
                     Cancelar
                 </button>
             </div>
