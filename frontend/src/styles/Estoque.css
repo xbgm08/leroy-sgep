@@ -1,19 +1,24 @@
-.titulo {
+/* Título da página */
+.estoque-titulo {
   color: rgb(42, 42, 42);
   margin-bottom: 20px;
 }
 
-.titulo h2 {
+.estoque-titulo h2 {
   margin-bottom: 5px;
+  font-size: 28px;
+  font-weight: bold;
 }
 
-.titulo h4 {
+.estoque-titulo h4 {
   margin: 0;
   color: #555;
+  font-size: 14px;
+  font-weight: normal;
 }
 
-/* Botão fora */
-button.fora {
+/* Botão de cadastrar */
+.estoque-btn-cadastrar {
   border: none;
   border-radius: 15px;
   height: 40px;
@@ -24,123 +29,160 @@ button.fora {
   color: white;
   cursor: pointer;
   font-weight: bold;
+  font-size: 14px;
+  transition: opacity 0.3s ease;
 }
 
-button.fora:hover {
-    opacity: 0.9;
+.estoque-btn-cadastrar:hover {
+  opacity: 0.9;
 }
 
-input[type="text"] {
+/* Input de busca */
+.estoque-search-input {
   border: none;
   border-radius: 15px;
   height: 50px;
   width: 100%; 
   padding: 0 20px;
   margin-bottom: 20px;
-  box-sizing: border-box; 
+  box-sizing: border-box;
+  font-size: 14px;
+  font-family: inherit;
 }
 
-.tabela {
+.estoque-search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(90, 188, 43, 0.3);
+}
+
+/* Container da tabela */
+.estoque-tabela {
   background-color: #ffffff; 
   border-radius: 8px;
   overflow: hidden; 
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   width: 100%;
 }
 
-table {
+/* Tabela */
+.estoque-tabela table {
   width: 100%;
   border-collapse: collapse; 
 }
 
-th, td {
+.estoque-tabela th,
+.estoque-tabela td {
   padding: 15px;
   text-align: center;
   border-bottom: 1px solid #eee; 
   font-size: 0.8rem;
 }
 
-th {
+.estoque-tabela th {
   background-color: #f8f8f8;
   font-weight: bold;
   color: #333;  
 }
 
-td button {
-  border: none;
-  border-radius: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-  background-color: #eee;
-  color: #333;
+.estoque-tabela tbody tr:hover {
+  background-color: #f9f9f9;
 }
 
-td button:hover {
-  background-color: #ddd;
+.estoque-tabela tbody tr:last-child td {
+  border-bottom: none;
 }
 
-td.cor {
+/* Badges de status de validade */
+.estoque-status {
   font-weight: bold;
   text-align: center;
   border-radius: 15px;
   padding: 5px 10px;
+  display: inline-block;
 }
 
-td.cor.verde { background-color: lightgreen; color: darkgreen; }
-td.cor.amarelo { background-color: lightyellow; color: orange; }
-td.cor.laranja { background-color: lightsalmon; color: orangered; }
-td.cor.vermelho { background-color: lightcoral; color: darkred; }
-td.cor.preto { background-color: grey; color: white; }
+.estoque-status.verde { 
+  background-color: lightgreen; 
+  color: darkgreen; 
+}
 
-.container-acoes {
+.estoque-status.amarelo { 
+  background-color: lightyellow; 
+  color: orange; 
+}
+
+.estoque-status.laranja { 
+  background-color: lightsalmon; 
+  color: orangered; 
+}
+
+.estoque-status.vermelho { 
+  background-color: lightcoral; 
+  color: darkred; 
+}
+
+.estoque-status.preto { 
+  background-color: grey; 
+  color: white; 
+}
+
+/* Container de ações */
+.estoque-container-acoes {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
+  gap: 8px;
 }
 
-.action-button {
+/* Botões de ação */
+.estoque-action-button {
   background-color: transparent;
   border: none;
   cursor: pointer;
   font-size: 1.2rem; 
   padding: 5px;
   color: #555;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
 }
 
-.action-button:hover {
+.estoque-action-button:hover {
   transform: scale(1.2);
 }
 
-.action-button.edit {
+.estoque-action-button.edit {
   color: #007bff; 
 }
-.action-button.edit:hover {
+
+.estoque-action-button.edit:hover {
   color: #0056b3;
 }
 
-.action-button.delete {
+.estoque-action-button.delete {
   color: #dc3545; 
 }
-.action-button.delete:hover {
+
+.estoque-action-button.delete:hover {
   color: #a71d2a;
 }
 
-.action-button.view {
+.estoque-action-button.view {
   color: #343a40; 
 }
-.action-button.view:hover {
+
+.estoque-action-button.view:hover {
   color: #1a1d20; 
 }
 
-.action-button.info {
+.estoque-action-button.info {
   color: #6c757d; 
 }
-.action-button.pdf:hover {
+
+.estoque-action-button.info:hover {
   color: #5a6268;
 }
 
-.sidebar-overlay {
+/* Sidebar overlay */
+.estoque-sidebar-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -152,7 +194,8 @@ td.cor.preto { background-color: grey; color: white; }
   justify-content: flex-end;
 }
 
-.sidebar-cadastro {
+/* Sidebar de cadastro */
+.estoque-sidebar-cadastro {
   position: fixed;
   top: 0;
   right: 0;
@@ -162,14 +205,42 @@ td.cor.preto { background-color: grey; color: white; }
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
   z-index: 1000;
-  animation: slideIn 0.3s ease-out;
+  animation: estoqueSlideIn 0.3s ease-out;
 }
 
-@keyframes slideIn {
+@keyframes estoqueSlideIn {
   from {
     transform: translateX(100%);
   }
   to {
     transform: translateX(0);
+  }
+}
+
+/* Mensagem de tabela vazia */
+.estoque-tabela tbody tr td[colspan] {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .estoque-btn-cadastrar {
+    width: 100%;
+    float: none;
+  }
+
+  .estoque-sidebar-cadastro {
+    width: 100%;
+  }
+
+  .estoque-tabela {
+    overflow-x: auto;
+  }
+
+  .estoque-tabela table {
+    min-width: 1000px;
   }
 }

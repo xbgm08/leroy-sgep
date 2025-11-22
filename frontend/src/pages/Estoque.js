@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit, FaTrashAlt, FaListUl, FaInfoCircle } from 'react-icons/fa';
 import '../styles/Estoque.css';
-import '../styles/Modal.css';
 import { getProdutos, deleteProduto } from '../api/produtoAPI';
 import LotesModal from '../components/LotesModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
@@ -189,21 +188,24 @@ const Estoque = () => {
 
   return (
     <>
-      <div className="titulo">
+      <div className="estoque-titulo">
         <h2>Estoque</h2>
         <h4>Aba dos Produtos</h4>
       </div>
 
-      <button className="fora" onClick={handleOpenCadastro}>Cadastrar Produto</button>
+      <button className="estoque-btn-cadastrar" onClick={handleOpenCadastro}>
+        Cadastrar Produto
+      </button>
 
       <input 
+        className="estoque-search-input"
         type="text" 
         placeholder="Pesquisar por Código LM, EAN, Nome, Marca ou Fornecedor..." 
         value={searchTerm}
         onChange={handleSearchChange}
       />
 
-      <div className="tabela">
+      <div className="estoque-tabela">
         <table>
           <thead>
             <tr>
@@ -220,7 +222,7 @@ const Estoque = () => {
             </tr>
           </thead>
           <tbody>
-            {produtos.length === 0 ? (
+            {produtosFiltrados.length === 0 ? (
               <tr>
                 <td colSpan="10">
                   {searchTerm ? 'Nenhum produto encontrado com este critério de busca.' : 'Nenhum produto encontrado.'}
@@ -241,19 +243,23 @@ const Estoque = () => {
                     <td>R$ {produto.preco_unit?.toFixed(2)}</td>
                     <td>{produto.estoque_calculado}</td>
                     <td>{formatarData(validadeProxima)}</td>
-                    <td className={`cor ${statusInfo.classe}`} title={statusInfo.legenda}>{statusInfo.texto}</td>
                     <td>
-                      <div className="container-acoes">
-                        <button className="action-button edit" title='Editar Produto' onClick={() => handleOpenEdicao(produto)}>
+                      <span className={`estoque-status ${statusInfo.classe}`} title={statusInfo.legenda}>
+                        {statusInfo.texto}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="estoque-container-acoes">
+                        <button className="estoque-action-button edit" title='Editar Produto' onClick={() => handleOpenEdicao(produto)}>
                           <FaEdit />
                         </button>
-                        <button className="action-button delete" title='Excluir Produto' onClick={() => handleOpenDeleteModal(produto)}>
+                        <button className="estoque-action-button delete" title='Excluir Produto' onClick={() => handleOpenDeleteModal(produto)}>
                           <FaTrashAlt />
                         </button>
-                        <button className="action-button view" title='Ver lotes' onClick={() => handleOpenLotesModal(produto)}>
+                        <button className="estoque-action-button view" title='Ver lotes' onClick={() => handleOpenLotesModal(produto)}>
                           <FaListUl />
                         </button>
-                        <button className="action-button info" title="Detalhes do Produto" onClick={() => handleOpenDetalheModal(produto)}>
+                        <button className="estoque-action-button info" title="Detalhes do Produto" onClick={() => handleOpenDetalheModal(produto)}>
                           <FaInfoCircle />
                         </button>
                       </div>
@@ -267,8 +273,8 @@ const Estoque = () => {
       </div>
 
       {isCadastroOpen && (
-        <div className="sidebar-overlay" onClick={handleCloseCadastro}>
-          <div className="sidebar-cadastro" onClick={(e) => e.stopPropagation()}>
+        <div className="estoque-sidebar-overlay" onClick={handleCloseCadastro}>
+          <div className="estoque-sidebar-cadastro" onClick={(e) => e.stopPropagation()}>
             <CadastroProduto 
               onProdutoCadastrado={handleProdutoCadastrado}
               onClose={handleCloseCadastro}
