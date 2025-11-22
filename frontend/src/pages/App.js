@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import Estoque from './Estoque';
 import Fornecedores from './Fornecedor';
 import BaseConhecimento from './BaseConhecimento';
+import APIReference from './APIReference';
 import ChatButton from '../components/ChatButton';
 import '../styles/App.css';
 
@@ -17,6 +18,7 @@ function App() {
           <Route path="/estoque" element={<Estoque />} />
           <Route path="/fornecedores" element={<Fornecedores />} />
           <Route path="/base-conhecimento" element={<BaseConhecimento />} />
+          <Route path="/api-reference" element={<APIReference />} />
         </Routes>
         <ChatButton />
       </main>

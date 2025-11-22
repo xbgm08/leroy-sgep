@@ -1,0 +1,297 @@
+/* Título da página */
+.api-titulo {
+  color: rgb(42, 42, 42);
+  margin-bottom: 30px;
+}
+
+.api-titulo h2 {
+  margin-bottom: 5px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.api-titulo h4 {
+  margin: 0;
+  color: #555;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+/* Card de informações */
+.api-info-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.api-info-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.api-info-icon {
+  font-size: 32px;
+  color: #5ABC2B;
+}
+
+.api-info-header h3 {
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.api-base-url {
+  background-color: #f8f8f8;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #5ABC2B;
+  border: 1px solid #e0e0e0;
+}
+
+.api-info-description {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Seções da API */
+.api-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.api-section {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.api-section:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.api-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  cursor: pointer;
+  background-color: #f8f8f8;
+  transition: background-color 0.2s;
+}
+
+.api-section-header:hover {
+  background-color: #f0f0f0;
+}
+
+.api-section-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.api-section-title svg {
+  font-size: 24px;
+  color: #5ABC2B;
+}
+
+.api-section-title h3 {
+  margin: 0 0 5px 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.api-section-title p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Endpoints */
+.api-endpoints {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.api-endpoint {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #fafafa;
+}
+
+.api-endpoint-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.api-method {
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 12px;
+  text-transform: uppercase;
+  min-width: 60px;
+  text-align: center;
+}
+
+.api-method-get {
+  background-color: #61affe;
+  color: white;
+}
+
+.api-method-post {
+  background-color: #49cc90;
+  color: white;
+}
+
+.api-method-put {
+  background-color: #fca130;
+  color: white;
+}
+
+.api-method-delete {
+  background-color: #f93e3e;
+  color: white;
+}
+
+.api-path {
+  background-color: #2d3748;
+  color: #e2e8f0;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  flex: 1;
+}
+
+.api-copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #5ABC2B;
+  font-size: 18px;
+  padding: 5px;
+  transition: all 0.2s;
+}
+
+.api-copy-btn:hover {
+  transform: scale(1.2);
+  color: #4a9b24;
+}
+
+.api-endpoint-description {
+  margin: 0 0 15px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+/* Parâmetros */
+.api-params {
+  margin: 15px 0;
+}
+
+.api-params h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+.api-params ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.api-params li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+.api-params code {
+  background-color: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  color: #e74c3c;
+}
+
+.api-param-type {
+  color: #666;
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* Request e Response */
+.api-request,
+.api-response {
+  margin: 15px 0;
+}
+
+.api-request h4,
+.api-response h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+.api-code {
+  background-color: #2d3748;
+  color: #e2e8f0;
+  padding: 15px;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.api-no-content {
+  color: #999;
+  font-style: italic;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .api-titulo h2 {
+    font-size: 24px;
+  }
+
+  .api-endpoint-header {
+    flex-wrap: wrap;
+  }
+
+  .api-path {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .api-code {
+    font-size: 11px;
+  }
+
+  .api-section-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
