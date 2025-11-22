@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createFornecedor, updateFornecedor } from '../api/fornecedorAPI';
-import '../styles/CadastroProduto.css';
+import '../styles/CadastrarFornecedor.css';
 
 const initialState = {
     cnpj: '',
@@ -85,15 +85,20 @@ const CadastrarFornecedor = ({ onSuccess, onClose, fornecedorToEdit = null }) =>
         return `${cleaned.slice(0, 2)}.${cleaned.slice(2, 5)}.${cleaned.slice(5, 8)}/${cleaned.slice(8, 12)}-${cleaned.slice(12, 14)}`;
     };
 
+    const validarCNPJ = (cnpj) => {
+        const cleaned = cnpj.replace(/\D/g, '');
+        return cleaned.length === 14;
+    };
+
     return (
-        <form onSubmit={handleSubmit} className="cadastro-form">
+        <form onSubmit={handleSubmit} className="fornecedor-cadastro-form">
             <h1>{isEditMode ? 'Editar Fornecedor' : 'Cadastrar Fornecedor'}</h1>
             
-            <div className="linha">
-                <div className="campo">
+            <div className="fornecedor-linha">
+                <div className="fornecedor-campo">
                     <label htmlFor="cnpj">CNPJ:</label>
                     <input 
-                        className="caixa" 
+                        className={`fornecedor-input ${formData.cnpj && (validarCNPJ(formData.cnpj) ? 'fornecedor-input-valid' : 'fornecedor-input-invalid')}`}
                         id="cnpj" 
                         name="cnpj" 
                         type="text" 
@@ -103,14 +108,19 @@ const CadastrarFornecedor = ({ onSuccess, onClose, fornecedorToEdit = null }) =>
                         placeholder="00.000.000/0000-00"
                         required 
                     />
+                    {isEditMode && (
+                        <small className="fornecedor-helper-text">
+                            O CNPJ não pode ser alterado após o cadastro
+                        </small>
+                    )}
                 </div>
             </div>
 
-            <div className="linha">
-                <div className="campo">
+            <div className="fornecedor-linha">
+                <div className="fornecedor-campo">
                     <label htmlFor="nome">Nome:</label>
                     <input 
-                        className="caixa" 
+                        className="fornecedor-input" 
                         id="nome" 
                         name="nome" 
                         type="text" 
@@ -123,11 +133,11 @@ const CadastrarFornecedor = ({ onSuccess, onClose, fornecedorToEdit = null }) =>
                 </div>
             </div>
 
-            <div className="linha">
-                <div className="campo">
-                    <label htmlFor="contato">Contato:</label>
+            <div className="fornecedor-linha">
+                <div className="fornecedor-campo">
+                    <label htmlFor="contato">Contato (opcional):</label>
                     <input 
-                        className="caixa" 
+                        className="fornecedor-input" 
                         id="contato" 
                         name="contato" 
                         type="text" 
@@ -138,11 +148,11 @@ const CadastrarFornecedor = ({ onSuccess, onClose, fornecedorToEdit = null }) =>
                 </div>
             </div>
 
-            <div className="linha">
-                <div className="campo">
+            <div className="fornecedor-linha">
+                <div className="fornecedor-campo">
                     <label htmlFor="politica_devolucao">Política de Devolução (dias):</label>
                     <input 
-                        className="caixa" 
+                        className="fornecedor-input" 
                         id="politica_devolucao" 
                         name="politica_devolucao" 
                         type="number" 
@@ -150,13 +160,17 @@ const CadastrarFornecedor = ({ onSuccess, onClose, fornecedorToEdit = null }) =>
                         value={formData.politica_devolucao}
                         placeholder="Ex: 30"
                         min="0"
+                        max="365"
                         required 
                     />
+                    <small className="fornecedor-helper-text">
+                        Número de dias para devolução de produtos
+                    </small>
                 </div>
             </div>
 
-            <div className="linha">
-                <div className="campo">
+            <div className="fornecedor-linha">
+                <div className="fornecedor-campo">
                     <label htmlFor="status_forn">
                         <input 
                             type="checkbox" 
@@ -167,15 +181,20 @@ const CadastrarFornecedor = ({ onSuccess, onClose, fornecedorToEdit = null }) =>
                         />
                         Fornecedor Ativo
                     </label>
+                    <small className="fornecedor-helper-text">
+                        {formData.status_forn 
+                            ? 'O fornecedor está disponível para cadastro de produtos' 
+                            : 'O fornecedor não poderá ser vinculado a novos produtos'}
+                    </small>
                 </div>
             </div>
 
-            <div className="linha">
-                <button className="botao" type="submit">
-                    {isEditMode ? 'Atualizar' : 'Adicionar'}
+            <div className="fornecedor-btn-container">
+                <button className="fornecedor-botao fornecedor-botao-submit" type="submit">
+                    {isEditMode ? '✓ Atualizar' : '+ Adicionar'}
                 </button>
-                <button className="botao" type="button" onClick={onClose}>
-                    Cancelar
+                <button className="fornecedor-botao fornecedor-botao-cancelar" type="button" onClick={onClose}>
+                    × Cancelar
                 </button>
             </div>
         </form>

@@ -1,0 +1,183 @@
+/* Container do formulário */
+.fornecedor-cadastro-form {
+  background-color: #d3d3d3;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.fornecedor-cadastro-form h1 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 24px;
+}
+
+/* Labels */
+.fornecedor-cadastro-form label {
+  padding-left: 10px;
+  display: block;
+  margin-bottom: 8px;
+  color: #444;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Linhas do formulário */
+.fornecedor-cadastro-form .fornecedor-linha {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.fornecedor-cadastro-form .fornecedor-campo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+}
+
+/* Inputs */
+.fornecedor-cadastro-form .fornecedor-input {
+  border: none;
+  border-radius: 5px;
+  padding: 12px;
+  font-size: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: box-shadow 0.2s;
+}
+
+.fornecedor-cadastro-form .fornecedor-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(90, 188, 43, 0.3);
+}
+
+.fornecedor-cadastro-form .fornecedor-input:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Texto auxiliar */
+.fornecedor-helper-text {
+  color: #666;
+  font-size: 12px;
+  margin-top: 5px;
+  padding-left: 10px;
+  font-style: italic;
+}
+
+/* Checkbox */
+.fornecedor-cadastro-form input[type="checkbox"] {
+  margin-right: 8px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.fornecedor-cadastro-form label[for="status_forn"] {
+  display: flex;
+  align-items: center;
+  font-weight: normal;
+  cursor: pointer;
+  padding-left: 10px;
+}
+
+/* Container dos botões */
+.fornecedor-btn-container {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+/* Botões */
+.fornecedor-cadastro-form .fornecedor-botao {
+  border: none;
+  border-radius: 15px;
+  height: 45px;
+  flex: 1;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.fornecedor-cadastro-form .fornecedor-botao-submit {
+  background-color: #5ABC2B;
+  color: white;
+}
+
+.fornecedor-cadastro-form .fornecedor-botao-submit:hover {
+  background-color: #4a9b24;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(90, 188, 43, 0.3);
+}
+
+.fornecedor-cadastro-form .fornecedor-botao-cancelar {
+  background-color: #6c757d;
+  color: white;
+}
+
+.fornecedor-cadastro-form .fornecedor-botao-cancelar:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+}
+
+.fornecedor-cadastro-form .fornecedor-botao:active {
+  transform: translateY(0);
+}
+
+/* Badge de status */
+.fornecedor-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fornecedor-status-badge.ativo {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.fornecedor-status-badge.inativo {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Ícone de validação */
+.fornecedor-input-valid {
+  border-left: 3px solid #5ABC2B !important;
+}
+
+.fornecedor-input-invalid {
+  border-left: 3px solid #dc3545 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fornecedor-cadastro-form {
+    padding: 15px;
+  }
+
+  .fornecedor-cadastro-form h1 {
+    font-size: 20px;
+  }
+
+  .fornecedor-btn-container {
+    flex-direction: column;
+  }
+
+  .fornecedor-cadastro-form .fornecedor-botao {
+    width: 100%;
+  }
+}
