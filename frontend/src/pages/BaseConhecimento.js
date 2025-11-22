@@ -119,28 +119,26 @@ const BaseConhecimento = () => {
 
     return (
         <>
-            <div className="titulo">
+            <div className="conhecimento-titulo">
                 <h2>Base de Conhecimento</h2>
                 <h4>Gerenciamento de FAQs e Respostas do Assistente Virtual</h4>
             </div>
 
-            <button className="fora" onClick={handleOpenCadastro}>
+            <button className="conhecimento-btn-cadastrar" onClick={handleOpenCadastro}>
                 Cadastrar Conhecimento
             </button>
 
-            <div className="filtros-container">
+            <div className="conhecimento-filtros">
                 <input
                     type="text"
                     placeholder="Pesquisar por título, resposta, palavras-chave ou categoria..."
                     value={searchTerm}
                     onChange={handleSearchChange}
-                    style={{ flex: 2 }}
                 />
 
                 <select 
                     value={filtroCategoria} 
                     onChange={(e) => setFiltroCategoria(e.target.value)}
-                    style={{ flex: 1, marginLeft: '10px' }}
                 >
                     <option value="todas">Todas Categorias</option>
                     {categorias.map(cat => (
@@ -151,7 +149,6 @@ const BaseConhecimento = () => {
                 <select 
                     value={filtroAtivo} 
                     onChange={(e) => setFiltroAtivo(e.target.value)}
-                    style={{ flex: 1, marginLeft: '10px' }}
                 >
                     <option value="todos">Todos Status</option>
                     <option value="ativos">Ativos</option>
@@ -159,7 +156,7 @@ const BaseConhecimento = () => {
                 </select>
             </div>
 
-            <div className="tabela">
+            <div className="conhecimento-tabela">
                 <table>
                     <thead>
                         <tr>
@@ -186,7 +183,7 @@ const BaseConhecimento = () => {
                                     <td style={{ maxWidth: '300px' }}>{conhecimento.titulo}</td>
                                     <td>
                                         {conhecimento.categoria ? (
-                                            <span className="cor azul">{conhecimento.categoria}</span>
+                                            <span className="conhecimento-status azul">{conhecimento.categoria}</span>
                                         ) : (
                                             '-'
                                         )}
@@ -199,7 +196,7 @@ const BaseConhecimento = () => {
                                         👁️ {conhecimento.visualizacoes}
                                     </td>
                                     <td>
-                                        <span className={`cor ${conhecimento.ativo ? 'verde' : 'vermelho'}`}>
+                                        <span className={`conhecimento-status ${conhecimento.ativo ? 'verde' : 'vermelho'}`}>
                                             {conhecimento.ativo ? (
                                                 <><FaToggleOn /> Ativo</>
                                             ) : (
@@ -208,16 +205,16 @@ const BaseConhecimento = () => {
                                         </span>
                                     </td>
                                     <td>
-                                        <div className="container-acoes">
+                                        <div className="conhecimento-container-acoes">
                                             <button 
-                                                className="action-button edit" 
+                                                className="conhecimento-action-button edit" 
                                                 title="Editar Conhecimento"
                                                 onClick={() => handleOpenEdicao(conhecimento)}
                                             >
                                                 <FaEdit />
                                             </button>
                                             <button 
-                                                className="action-button delete" 
+                                                className="conhecimento-action-button delete" 
                                                 title="Desativar Conhecimento"
                                                 onClick={() => handleOpenDeleteModal(conhecimento)}
                                             >
@@ -233,8 +230,8 @@ const BaseConhecimento = () => {
             </div>
 
             {showCadastro && (
-                <div className="sidebar-overlay" onClick={handleCloseCadastro}>
-                    <div className="sidebar-cadastro" onClick={(e) => e.stopPropagation()}>
+                <div className="conhecimento-sidebar-overlay" onClick={handleCloseCadastro}>
+                    <div className="conhecimento-sidebar-cadastro" onClick={(e) => e.stopPropagation()}>
                         <CadastrarConhecimento
                             onSuccess={handleCadastroSuccess}
                             onClose={handleCloseCadastro}

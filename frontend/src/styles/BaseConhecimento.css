@@ -1,221 +1,212 @@
-.titulo {
+.conhecimento-titulo {
+    color: rgb(42, 42, 42);
     margin-bottom: 20px;
 }
 
-.titulo h2 {
+.conhecimento-titulo h2 {
+    margin-bottom: 5px;
     font-size: 28px;
     font-weight: bold;
-    margin: 0;
-    color: #333;
 }
 
-.titulo h4 {
+.conhecimento-titulo h4 {
+    margin: 0;
+    color: #555;
     font-size: 14px;
-    color: #666;
-    margin: 5px 0 0 0;
     font-weight: normal;
 }
 
-.fora {
+/* Botão de cadastrar */
+.conhecimento-btn-cadastrar {
+    border: none;
+    border-radius: 15px;
+    height: 40px;
+    width: 220px; 
+    float: right; 
+    margin-bottom: 20px;
     background-color: #5ABC2B;
     color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    transition: background-color 0.3s ease;
+    font-weight: bold;
+    font-size: 14px;
+    transition: opacity 0.3s ease;
 }
 
-.fora:hover {
-    background-color: #4aa024;
+.conhecimento-btn-cadastrar:hover {
+    opacity: 0.9;
 }
 
-.filtros-container {
+/* Container de filtros */
+.conhecimento-filtros {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
     align-items: center;
+    clear: both;
 }
 
-.filtros-container input,
-.filtros-container select {
+.conhecimento-filtros input,
+.conhecimento-filtros select {
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 15px;
     font-size: 14px;
     font-family: inherit;
 }
 
-.filtros-container input {
+.conhecimento-filtros input {
     flex: 2;
 }
 
-.filtros-container select {
+.conhecimento-filtros select {
     flex: 1;
     cursor: pointer;
     background-color: white;
 }
 
-.filtros-container input:focus,
-.filtros-container select:focus {
+.conhecimento-filtros input:focus,
+.conhecimento-filtros select:focus {
     outline: none;
-    border-color: #5ABC2B;
-    box-shadow: 0 0 0 2px rgba(90, 188, 43, 0.1);
+    box-shadow: 0 0 0 2px rgba(90, 188, 43, 0.3);
 }
 
-.tabela {
+/* Container da tabela */
+.conhecimento-tabela {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
-.tabela table {
+/* Tabela */
+.conhecimento-tabela table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.tabela thead {
-    background-color: #f8f9fa;
+.conhecimento-tabela th,
+.conhecimento-tabela td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    font-size: 0.8rem;
 }
 
-.tabela th {
-    padding: 12px 16px;
-    text-align: left;
-    font-weight: 600;
+.conhecimento-tabela th {
+    background-color: #f8f8f8;
+    font-weight: bold;
     color: #333;
-    border-bottom: 2px solid #e0e0e0;
-    font-size: 14px;
 }
 
-.tabela td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #f0f0f0;
-    color: #555;
-    font-size: 14px;
+.conhecimento-tabela tbody tr:hover {
+    background-color: #f9f9f9;
 }
 
-.tabela tbody tr:hover {
-    background-color: #f8f9fa;
-}
-
-.tabela tbody tr:last-child td {
+.conhecimento-tabela tbody tr:last-child td {
     border-bottom: none;
 }
 
-.tabela table th:nth-child(1) {
-    width: 30%;
-}
+/* Larguras específicas das colunas */
+.conhecimento-tabela th:nth-child(1) { width: 30%; }
+.conhecimento-tabela th:nth-child(2) { width: 15%; }
+.conhecimento-tabela th:nth-child(3) { width: 25%; }
+.conhecimento-tabela th:nth-child(4) { width: 10%; text-align: center; }
+.conhecimento-tabela th:nth-child(5) { width: 10%; }
+.conhecimento-tabela th:nth-child(6) { width: 10%; }
 
-.tabela table th:nth-child(2) { 
-    width: 15%;
-}
-
-.tabela table th:nth-child(3) { 
-    width: 25%;
-}
-
-.tabela table th:nth-child(4) { 
-    width: 10%;
-    text-align: center;
-}
-
-.tabela table th:nth-child(5) { 
-    width: 10%;
-}
-
-.tabela table th:nth-child(6) { 
-    width: 10%;
-}
-
-.tabela table td:nth-child(4) {
-    text-align: center;
-}
-
-.cor {
+/* Badges de status */
+.conhecimento-status {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 15px;
+    padding: 5px 10px;
 }
 
-.cor.verde {
-    background-color: #5ABC2B;
-    color: white;
+.conhecimento-status.verde {
+    background-color: lightgreen;
+    color: darkgreen;
 }
 
-.cor.vermelho {
-    background-color: #dc3545;
-    color: white;
+.conhecimento-status.vermelho {
+    background-color: lightcoral;
+    color: darkred;
 }
 
-.cor.azul {
+.conhecimento-status.azul {
     background-color: #17a2b8;
     color: white;
 }
 
-.container-acoes {
+/* Container de ações */
+.conhecimento-container-acoes {
     display: flex;
-    gap: 8px;
     justify-content: center;
+    align-items: center;
+    gap: 8px;
 }
 
-.action-button {
-    padding: 8px 12px;
+/* Botões de ação */
+.conhecimento-action-button {
+    background-color: transparent;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 1.2rem;
+    padding: 5px;
+    color: #555;
     transition: all 0.2s ease;
-    color: white;
 }
 
-.action-button.edit {
-    background-color: #ffc107;
+.conhecimento-action-button:hover {
+    transform: scale(1.2);
 }
 
-.action-button.edit:hover {
-    background-color: #e0a800;
-    transform: scale(1.05);
+.conhecimento-action-button.edit {
+    color: #007bff;
 }
 
-.action-button.delete {
-    background-color: #dc3545;
+.conhecimento-action-button.edit:hover {
+    color: #0056b3;
 }
 
-.action-button.delete:hover {
-    background-color: #c82333;
-    transform: scale(1.05);
+.conhecimento-action-button.delete {
+    color: #dc3545;
 }
 
-.sidebar-overlay {
+.conhecimento-action-button.delete:hover {
+    color: #a71d2a;
+}
+
+/* Sidebar overlay */
+.conhecimento-sidebar-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    z-index: 999;
     display: flex;
     justify-content: flex-end;
 }
 
-.sidebar-cadastro {
-    background-color: white;
+/* Sidebar de cadastro */
+.conhecimento-sidebar-cadastro {
+    position: fixed;
+    top: 0;
+    right: 0;
     width: 500px;
     height: 100%;
+    background-color: #d3d3d3;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
     overflow-y: auto;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
-    animation: slideInRight 0.3s ease;
+    z-index: 1000;
+    animation: conhecimentoSlideIn 0.3s ease-out;
 }
 
-@keyframes slideInRight {
+@keyframes conhecimentoSlideIn {
     from {
         transform: translateX(100%);
     }
@@ -224,32 +215,39 @@
     }
 }
 
-.tabela tbody tr td[colspan] {
+/* Mensagem de tabela vazia */
+.conhecimento-tabela tbody tr td[colspan] {
     text-align: center;
     padding: 40px 20px;
     color: #999;
     font-style: italic;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
-    .filtros-container {
+    .conhecimento-btn-cadastrar {
+        width: 100%;
+        float: none;
+    }
+
+    .conhecimento-filtros {
         flex-direction: column;
     }
 
-    .filtros-container input,
-    .filtros-container select {
+    .conhecimento-filtros input,
+    .conhecimento-filtros select {
         width: 100%;
     }
 
-    .sidebar-cadastro {
+    .conhecimento-sidebar-cadastro {
         width: 100%;
     }
 
-    .tabela {
+    .conhecimento-tabela {
         overflow-x: auto;
     }
 
-    .tabela table {
+    .conhecimento-tabela table {
         min-width: 900px;
     }
 }
