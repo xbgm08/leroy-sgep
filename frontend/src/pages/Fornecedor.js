@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import CadastrarFornecedor from '../components/CadastrarFornecedor';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import { getFornecedores, deleteFornecedor } from '../api/fornecedorAPI';
@@ -151,7 +151,11 @@ const Fornecedores = () => {
                                     <td>{fornecedor.politica_devolucao} dias</td>
                                     <td>
                                         <span className={`fornecedor-status ${fornecedor.status_forn ? 'verde' : 'vermelho'}`}>
-                                            {fornecedor.status_forn ? 'Ativo' : 'Inativo'}
+                                            {fornecedor.status_forn ? (
+                                                <><FaCheckCircle /> Ativo</>
+                                            ) : (
+                                                <><FaTimesCircle /> Inativo</>
+                                            )}
                                         </span>
                                     </td>
                                     <td>
