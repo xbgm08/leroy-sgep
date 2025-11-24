@@ -87,7 +87,7 @@ class ProdutoService:
             
         # Calcular o valor_lote
         # Usa o preco_unit do produto pai e a quantidade do novo lote
-        lote.valor_lote = produto_atual.preco_unit * lote.quantidade_lote
+        lote.valor_lote = round(produto_atual.preco_unit * lote.quantidade_lote, 2)
         
         lote_data = lote.model_dump()
         
@@ -122,7 +122,7 @@ class ProdutoService:
             # Itera nos lotes que já existem no banco
             for lote_existente in produto_atual.lotes:
                 # Recalcula o valor de cada lote
-                lote_existente.valor_lote = novo_preco_unit * lote_existente.quantidade_lote
+                lote_existente.valor_lote = round(novo_preco_unit * lote_existente.quantidade_lote, 2)
                 novos_lotes_data.append(lote_existente.model_dump())
             
             # Adiciona o array de lotes (com valores atualizados) ao $set
@@ -167,7 +167,7 @@ class ProdutoService:
         update_data["data_atualizacao_ativo"] = datetime.now(timezone.utc)
         
         # Usa o preco_unit do produto pai e a nova quantidade do lote
-        update_data["valor_lote"] = produto_atual.preco_unit * lote_update.quantidade_lote
+        update_data["valor_lote"] = round(produto_atual.preco_unit * lote_update.quantidade_lote, 2)
         
         set_fields = {f"lotes.$.{key}": value for key, value in update_data.items()}
 

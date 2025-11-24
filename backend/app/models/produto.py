@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import List, Optional
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, model_validator
+from dateutil.relativedelta import relativedelta
 
 def get_utc_now() -> datetime:
     return datetime.now(timezone.utc)
@@ -8,12 +9,29 @@ def get_utc_now() -> datetime:
 class Lote(BaseModel):
     codigo_lote: str
     data_fabricacao: datetime
-    data_validade: datetime
-    prazo_validade_meses: int
+    data_validade: Optional[datetime] = None
+    prazo_validade_meses: Optional[int] = None
     quantidade_lote: int
     ativo: bool = Field(default=True, description="Status do lote (True=Ativo, False=Inativo)")
     data_alteracao_status: datetime = Field(default_factory=get_utc_now)
     valor_lote: float = Field(default=0.0, description="Valor do estoque do lote (Preço Unit. Produto * Qtd. Lote)")
+
+    @model_validator(mode='after')
+    def calcular_datas_e_prazos(self) -> 'Lote':
+        # Cenário 1: Tem Fabricação e Validade, mas falta o Prazo -> Calcula o Prazo
+        if self.data_fabricacao and self.data_validade and self.prazo_validade_meses is None:
+            # Calcula a diferença exata em meses
+            diferenca = relativedelta(self.data_validade, self.data_fabricacao)
+            self.prazo_validade_meses = (diferenca.years * 12) + diferenca.months
+        
+        # Cenário 2: Tem Fabricação e Prazo, mas falta Validade -> Calcula a Validade
+        elif self.data_fabricacao and self.prazo_validade_meses is not None and self.data_validade is None:
+            self.data_validade = self.data_fabricacao + relativedelta(months=self.prazo_validade_meses)
+            
+        if self.data_validade is None:
+             raise ValueError("É obrigatório informar a Data de Validade OU o Prazo de Validade (em meses).")
+            
+        return self
 
 class Produto(BaseModel):
     nome_produto: str = Field(..., max_length=200)
@@ -63,5 +81,3 @@ class Produto(BaseModel):
             return None 
             
         return round(self.preco_unit * self.estoque_reportado, 2)
-    
-    
