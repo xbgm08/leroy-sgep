@@ -27,7 +27,7 @@ const Sidebar = () => {
                 <h2>LOSS PREVENTION</h2>
             </div>
 
-            <SidebarButton icon={FaChartLine} label="Dashboards" to="/" />
+            <SidebarButton icon={FaChartLine} label="Dashboards" to="/dashboard" />
             <SidebarButton icon={FaBoxes} label="Estoque" to="/estoque" />
             <SidebarButton icon={FaTruck} label="Fornecedores" to="/fornecedores" />
             <SidebarButton icon={FaBrain} label="Base de Conhecimento" to="/base-conhecimento" />
