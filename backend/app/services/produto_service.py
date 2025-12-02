@@ -20,20 +20,50 @@ class ProdutoService:
         self.collection: Collection = self.db['produtos']
         self.fornecedor_collection: Collection = self.db['fornecedores']
         
-    def get_all(self) -> List[Produto]:
+    def get_all(self, termo_busca: Optional[str] = None, skip: int = 0, limit: int = 50) -> dict:
         """Retorna todos os produtos cadastrados."""
-        produtos_data = list(self.collection.find())
+        query = {}
+
+        if termo_busca:
+            regex_term = {"$regex": termo_busca, "$options": "i"}
+            or_conditions = [
+                {"nome_produto": regex_term},
+                {"marca": regex_term},
+            ]
+            
+            if termo_busca.isdigit():
+                or_conditions.append({"codigo_lm": int(termo_busca)})
+                or_conditions.append({"codigo_lm_str": {"$regex": f"^{termo_busca}", "$options": "i"}})
+                or_conditions.append({"ean": int(termo_busca)})
+            
+            query["$or"] = or_conditions
+
+        total = self.collection.count_documents(query)
+        
+        cursor = self.collection.find(query).skip(skip)
+        
+        if limit > 0:
+            cursor = cursor.limit(limit)
+            
+        produtos_data = list(cursor)
+
         fornecedor_service = FornecedorService()
         todos_fornecedores = fornecedor_service.get_all()
-        fornecedor_map = {f.cnpj: f.nome for f in todos_fornecedores if f.cnpj is not None}
+        fornecedor_map = {f.cnpj: f.nome for f in todos_fornecedores}
         
         resultados = []
         for data in produtos_data:
             produto = Produto(**data)
-            produto.fornecedor_nome = fornecedor_map.get(produto.fornecedor_cnpj)
+            if produto.fornecedor_cnpj and produto.fornecedor_cnpj in fornecedor_map:
+                produto.fornecedor_nome = fornecedor_map[produto.fornecedor_cnpj]
             resultados.append(produto)
 
-        return resultados
+        return {
+            "produtos": resultados,
+            "total": total,
+            "skip": skip,
+            "limit": limit if limit > 0 else total
+        }
 
     def create(self, produto: Produto) -> Produto:
         """Cria um novo produto."""    

@@ -16,10 +16,15 @@ def create_produto(produto: Produto, service: ProdutoService = Depends(get_produ
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-@router.get("/", response_model=List[Produto])
-def get_produtos(service: ProdutoService = Depends(get_produto_service)):
+@router.get("/", response_model=dict)
+def get_produtos(
+    skip: int = 0,
+    limit: int = 50,
+    termo: Optional[str] = None,
+    service: ProdutoService = Depends(get_produto_service)
+):
     """Retorna a lista de todos os produtos cadastrados."""
-    return service.get_all()
+    return service.get_all(termo_busca=termo, skip=skip, limit=limit)
 
 @router.get("/{codigo_lm}", response_model=Produto)
 def get_produto_by_id(codigo_lm: int, service: ProdutoService = Depends(get_produto_service)):

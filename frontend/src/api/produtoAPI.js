@@ -30,15 +30,23 @@ export const updateProduto = async (codigo_lm, produtoData) => {
     }
 };
 
-export const getProdutos = async () => {
+export const getProdutos = async (skip = 0, limit = 50, termo = '') => {
     try {
-        const response = await axios.get(`${API_URL}/produtos/`);
+        const params = new URLSearchParams();
+        params.append('skip', skip);
+        params.append('limit', limit);
+        if (termo) {
+            params.append('termo', termo);
+        }
+        
+        const response = await axios.get(`${API_URL}/produtos/?${params.toString()}`);
         return response.data;
     } catch (error) {
-        console.error('Erro ao buscar produtos da API:', error.response?.data || error.message);
-        return [];
+        console.error('Erro ao buscar produtos:', error);
+        throw error;
     }
 };
+
 
 export const deleteProduto = async (codigo_lm) => {
     try {

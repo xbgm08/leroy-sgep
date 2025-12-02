@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrashAlt, FaListUl, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaTimesCircle, FaClock } from 'react-icons/fa';
+import { FaEdit, FaTrashAlt, FaListUl, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaTimesCircle, FaClock, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../styles/Estoque.css';
 import { getProdutos, deleteProduto } from '../api/produtoAPI';
 import LotesModal from '../components/LotesModal';
@@ -11,6 +11,10 @@ const Estoque = () => {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [totalRegistros, setTotalRegistros] = useState(0);
+  const [itensPorPagina] = useState(50);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
@@ -24,22 +28,50 @@ const Estoque = () => {
   const [isDetalheModalOpen, setIsDetalheModalOpen] = useState(false);
   const [produtoDetalhe, setProdutoDetalhe] = useState(null);
 
- const carregarDados = async () => {
+ const carregarDados = async (pagina = 1, termoBusca = '') => {
     setLoading(true);
 
     try {
-      const dados = await getProdutos();
-      setProdutos(dados);
+      const skip = (pagina - 1) * itensPorPagina;
+      const dados = await getProdutos(skip, itensPorPagina, termoBusca);
+      
+      setProdutos(dados.produtos || []);
+      setTotalRegistros(dados.total || 0);
+      setPaginaAtual(pagina);
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
+      setProdutos([]);
+      setTotalRegistros(0);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    carregarDados();
+    carregarDados(1, '');
   }, []);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      carregarDados(1, searchTerm);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  const totalPaginas = Math.ceil(totalRegistros / itensPorPagina);
+
+  const handlePaginaAnterior = () => {
+    if (paginaAtual > 1) {
+      carregarDados(paginaAtual - 1, searchTerm);
+    }
+  };
+
+  const handleProximaPagina = () => {
+    if (paginaAtual < totalPaginas) {
+      carregarDados(paginaAtual + 1, searchTerm);
+    }
+  };
 
   const getValidadeMaisProxima = (lotes) => {
     if (!lotes || lotes.length === 0) return null;
@@ -136,11 +168,12 @@ const Estoque = () => {
   };
 
   const handleLoteAtualizado = async () => {
-    await carregarDados();
+    await carregarDados(paginaAtual, searchTerm);
     
     if (produtoSelecionado) {
-      const produtosAtualizados = await getProdutos();
-      const produtoAtualizado = produtosAtualizados.find(
+      const skip = (paginaAtual - 1) * itensPorPagina;
+      const dados = await getProdutos(skip, itensPorPagina, searchTerm);
+      const produtoAtualizado = dados.produtos.find(
         p => p.codigo_lm === produtoSelecionado.codigo_lm
       );
       if (produtoAtualizado) {
@@ -165,7 +198,7 @@ const Estoque = () => {
     const success = await deleteProduto(productToDelete.codigo_lm); 
     
     if (success) {
-      setProdutos(produtos.filter(p => p.codigo_lm !== productToDelete.codigo_lm));
+      await carregarDados(paginaAtual, searchTerm);
     } else {
       console.error("Falha ao deletar o produto.");
     }
@@ -189,7 +222,7 @@ const Estoque = () => {
   };
 
   const handleProdutoCadastrado = () => {
-    carregarDados();
+    carregarDados(paginaAtual, searchTerm);
     setIsCadastroOpen(false);
   };
 
@@ -227,6 +260,13 @@ const Estoque = () => {
         value={searchTerm}
         onChange={handleSearchChange}
       />
+
+      <div className="estoque-paginacao-info">
+        <span>
+          Mostrando {produtos.length > 0 ? ((paginaAtual - 1) * itensPorPagina + 1) : 0} - {Math.min(paginaAtual * itensPorPagina, totalRegistros)} de {totalRegistros} produtos
+          {searchTerm && ` (filtrados)`}
+        </span>
+      </div>
 
       <div className="estoque-tabela">
         <table>
@@ -294,6 +334,30 @@ const Estoque = () => {
           </tbody>
         </table>
       </div>
+
+      {totalPaginas > 1 && (
+        <div className="estoque-paginacao">
+          <button 
+            className="estoque-paginacao-btn"
+            onClick={handlePaginaAnterior}
+            disabled={paginaAtual === 1}
+          >
+            <FaChevronLeft /> Anterior
+          </button>
+          
+          <span className="estoque-paginacao-texto">
+            Página {paginaAtual} de {totalPaginas}
+          </span>
+          
+          <button 
+            className="estoque-paginacao-btn"
+            onClick={handleProximaPagina}
+            disabled={paginaAtual === totalPaginas}
+          >
+            Próxima <FaChevronRight />
+          </button>
+        </div>
+      )}
 
       {isCadastroOpen && (
         <div className="estoque-sidebar-overlay" onClick={handleCloseCadastro}>
