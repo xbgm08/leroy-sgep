@@ -43,10 +43,10 @@ class DashboardService:
                                 "_id": None,
                                 "total_produtos": { "$sum": 1 },
                                 "produtos_em_estoque": {
-                                    "$sum": { "$cond": [{ "$gt": ["$estoque_calculado", 0] }, 1, 0] }
+                                    "$sum": { "$cond": [{ "$gt": ["$estoque_reportado", 0] }, 1, 0] }
                                 },
                                 "valor_total": {
-                                    "$sum": { "$multiply": ["$preco_unit", { "$ifNull": ["$estoque_calculado", 0] }] }
+                                    "$sum": { "$multiply": ["$preco_unit", { "$ifNull": ["$estoque_reportado", 0] }] }
                                 }
                             }
                         }

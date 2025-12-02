@@ -228,7 +228,7 @@ const Dashboard = () => {
 
                 {/* Falta Atribuir Lote - Gráfico de Barras Horizontais */}
                 <div className="chart-card">
-                    <h3>Falta Atribuir Lote (Top 10)</h3>
+                    <h3>Produtos sem Lote Cadastrado (Top 10)</h3>
                     <p className="chart-subtitle">Produtos onde o estoque reportado é maior que o cadastrado em lotes</p>
                     
                     {barData.length > 0 ? (
@@ -249,7 +249,7 @@ const Dashboard = () => {
                                 />
                                 <Tooltip 
                                     formatter={(value, name) => {
-                                        if (name === 'falta') return [`${value} unidades`, 'Falta atribuir'];
+                                        if (name === 'falta') return [`${value} unidades`, 'Sem lote cadastrado'];
                                         if (name === 'percentual') return [`${value.toFixed(1)}%`, 'Concluído'];
                                         return value;
                                     }}
