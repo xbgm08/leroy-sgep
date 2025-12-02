@@ -67,6 +67,11 @@ const Dashboard = () => {
         { name: 'Menos de 30 dias', value: status_lotes_distribuicao.em_30_dias, color: '#E53935' }
     ].filter(item => item.value > 0);
 
+    const totalLotesProximoVencimento = status_lotes_distribuicao.em_30_dias + status_lotes_distribuicao.em_60_dias;
+    const percentualRisco = estatisticas.total_lotes > 0 
+        ? ((totalLotesProximoVencimento / estatisticas.total_lotes) * 100).toFixed(1)
+        : 0;
+
     const barData = produtos_falta_lote.slice(0, 10).map(item => ({
         nome: item.nome.length > 25 ? item.nome.substring(0, 22) + '...' : item.nome,
         falta: item.falta_atribuir,
@@ -155,33 +160,53 @@ const Dashboard = () => {
                     <h3>Status dos Lotes</h3>
                     
                     {pieData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={300}>
-                            <PieChart>
-                                <Pie
-                                    data={pieData}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    label={renderCustomLabel}
-                                    outerRadius={100}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                >
-                                    {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                                <Tooltip 
-                                    formatter={(value) => `${value} lotes`}
-                                    contentStyle={{ backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px' }}
-                                />
-                                <Legend 
-                                    verticalAlign="bottom" 
-                                    height={36}
-                                    formatter={(value, entry) => `${entry.payload.name} (${entry.payload.value})`}
-                                />
-                            </PieChart>
-                        </ResponsiveContainer>
+                        <>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                    <Pie
+                                        data={pieData}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        label={renderCustomLabel}
+                                        outerRadius={100}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                    >
+                                        {pieData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip 
+                                        formatter={(value) => `${value} lotes`}
+                                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px' }}
+                                    />
+                                    <Legend 
+                                        verticalAlign="bottom" 
+                                        height={36}
+                                        formatter={(value, entry) => `${entry.payload.name} (${entry.payload.value})`}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+
+                            <div className="status-summary">
+                                <div className="summary-item critical">
+                                    <span className="summary-label">Lotes em Risco</span>
+                                    <span className="summary-value">{totalLotesProximoVencimento}</span>
+                                    <span className="summary-detail">
+                                        {percentualRisco}% do total de lotes
+                                    </span>
+                                </div>
+                                <div className="summary-divider"></div>
+                                <div className="summary-item info">
+                                    <span className="summary-label">Total de Lotes</span>
+                                    <span className="summary-value">{estatisticas.total_lotes}</span>
+                                    <span className="summary-detail">
+                                        Cadastrados no sistema
+                                    </span>
+                                </div>
+                            </div>
+                        </>
                     ) : (
                         <div className="empty-chart">
                             <p>Nenhum lote cadastrado no momento</p>
