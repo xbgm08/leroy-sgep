@@ -271,13 +271,24 @@
   font-size: 15px;
 }
 
-@keyframes estoqueSlideIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+.estoque-btn-importar {
+  border: none;
+  border-radius: 15px;
+  height: 40px;
+  width: 200px;
+  margin-bottom: 20px;
+  background-color: #2196F3;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.estoque-btn-importar:hover {
+  background-color: #1976D2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 .estoque-tabela tbody tr td[colspan] {
@@ -287,10 +298,32 @@
   font-style: italic;
 }
 
+.estoque-botoes-container {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+@keyframes estoqueSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 @media (max-width: 768px) {
-  .estoque-btn-cadastrar {
+  .estoque-btn-cadastrar,
+  .estoque-btn-importar {
     width: 100%;
     float: none;
+  }
+
+  .estoque-botoes-container {
+    flex-direction: column;
+    gap: 10px;
   }
 
   .estoque-sidebar-cadastro {

@@ -47,7 +47,6 @@ export const getProdutos = async (skip = 0, limit = 50, termo = '') => {
     }
 };
 
-
 export const deleteProduto = async (codigo_lm) => {
     try {
         await axios.delete(`${API_URL}/produtos/${codigo_lm}`);
@@ -55,5 +54,27 @@ export const deleteProduto = async (codigo_lm) => {
     } catch (error) {
         console.error("Erro em deleteProduto:", error.response?.data || error.message);
         return false;
+    }
+};
+
+export const importarProdutosUpload = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await axios.post(
+            `${API_URL}/produtos/importar-upload`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error("Erro em importarProdutosUpload:", error.response?.data || error.message);
+        throw new Error(error.response?.data?.detail || 'Erro ao fazer upload do arquivo.');
     }
 };

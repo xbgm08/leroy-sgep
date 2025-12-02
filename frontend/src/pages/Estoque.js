@@ -6,6 +6,7 @@ import LotesModal from '../components/LotesModal';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import CadastroProduto from '../components/CadastrarProduto';
 import DetalheProdutoModal from '../components/DetalheProdutoModal';
+import ImportarProdutos from '../components/ImportarProdutos';
 
 const Estoque = () => {
   const [produtos, setProdutos] = useState([]);
@@ -27,6 +28,8 @@ const Estoque = () => {
 
   const [isDetalheModalOpen, setIsDetalheModalOpen] = useState(false);
   const [produtoDetalhe, setProdutoDetalhe] = useState(null);
+
+  const [isImportarOpen, setIsImportarOpen] = useState(false);
 
  const carregarDados = async (pagina = 1, termoBusca = '') => {
     setLoading(true);
@@ -236,6 +239,19 @@ const Estoque = () => {
     setProdutoDetalhe(null);
   };
 
+  const handleOpenImportar = () => {
+    setIsImportarOpen(true);
+  };
+
+  const handleCloseImportar = () => {
+    setIsImportarOpen(false);
+  };
+
+  const handleImportSuccess = () => {
+    carregarDados(paginaAtual, searchTerm);
+    setIsImportarOpen(false);
+  };
+
   if (loading) {
     return <div>Carregando dados do estoque...</div>;
   }
@@ -249,9 +265,14 @@ const Estoque = () => {
         <h4>Aba dos Produtos</h4>
       </div>
 
-      <button className="estoque-btn-cadastrar" onClick={handleOpenCadastro}>
-        Cadastrar Produto
-      </button>
+      <div className="estoque-botoes-container">
+        <button className="estoque-btn-cadastrar" onClick={handleOpenCadastro}>
+          Cadastrar Produto
+        </button>
+        <button className="estoque-btn-importar" onClick={handleOpenImportar}>
+          📤 Importar Excel
+        </button>
+      </div>
 
       <input 
         className="estoque-search-input"
@@ -369,6 +390,13 @@ const Estoque = () => {
             />
           </div>
         </div>
+      )}
+
+      {isImportarOpen && (
+        <ImportarProdutos
+          onClose={handleCloseImportar}
+          onImportSuccess={handleImportSuccess}
+        />
       )}
 
       <LotesModal
