@@ -24,7 +24,7 @@ const Sidebar = () => {
         <div className="sidebar">
             <div className="titulos">
                 <img src={logoLeroy} alt="Logo Leroy Merlin" />
-                <h2>LOSS PREVENTION</h2>
+                <h2>Sistema de Gestão do Estoque de Perecíveis</h2>
             </div>
 
             <SidebarButton icon={FaChartLine} label="Dashboards" to="/dashboard" />
