@@ -6,6 +6,7 @@ import Fornecedores from './Fornecedor';
 import BaseConhecimento from './BaseConhecimento';
 import APIReference from './APIReference';
 import ChatButton from '../components/ChatButton';
+import Dashboard from './Dashboard';
 import '../styles/App.css';
 
 function App() {
@@ -19,6 +20,8 @@ function App() {
           <Route path="/fornecedores" element={<Fornecedores />} />
           <Route path="/base-conhecimento" element={<BaseConhecimento />} />
           <Route path="/api-reference" element={<APIReference />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} /> 
         </Routes>
         <ChatButton />
       </main>
