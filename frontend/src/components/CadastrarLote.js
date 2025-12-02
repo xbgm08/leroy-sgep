@@ -13,12 +13,12 @@ const initialState = {
 
 const CadastrarLote = ({ produto, onLoteCadastrado, onClose, loteParaEditar = null }) => {
     const [formData, setFormData] = useState(initialState);
+    const [modoCalculo, setModoCalculo] = useState('data');
 
     const isEditMode = !!loteParaEditar;
 
     useEffect(() => {
         if (loteParaEditar) {
-            // Converter datas ISO para formato yyyy-MM-dd para o input
             const dataFab = loteParaEditar.data_fabricacao ? 
                 new Date(loteParaEditar.data_fabricacao).toISOString().split('T')[0] : "";
             const dataVal = loteParaEditar.data_validade ? 
@@ -50,20 +50,58 @@ const CadastrarLote = ({ produto, onLoteCadastrado, onClose, loteParaEditar = nu
         const val = new Date(dataVal);
         
         const diffTime = val - fab;
-        const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30.44)); // média de dias por mês
+        const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30.44));
         
         return diffMonths > 0 ? diffMonths : 0;
     };
 
+    const calcularDataValidade = (dataFab, prazoMeses) => {
+        if (!dataFab || !prazoMeses) return "";
+        
+        const fab = new Date(dataFab);
+        const meses = parseInt(prazoMeses, 10);
+        
+        const val = new Date(fab);
+        val.setMonth(val.getMonth() + meses);
+        
+        return val.toISOString().split('T')[0];
+    };
+
     useEffect(() => {
-        if (formData.data_fabricacao && formData.data_validade) {
+        if (modoCalculo === 'data' && formData.data_fabricacao && formData.data_validade) {
             const prazo = calcularPrazoValidade(formData.data_fabricacao, formData.data_validade);
-            setFormData(prev => ({ ...prev, prazo_validade_meses: prazo }));
+            if (prazo !== formData.prazo_validade_meses) {
+                setFormData(prev => ({ ...prev, prazo_validade_meses: prazo }));
+            }
         }
-    }, [formData.data_fabricacao, formData.data_validade]);
+    }, [formData.data_fabricacao, formData.data_validade, modoCalculo]);
+
+    useEffect(() => {
+        if (modoCalculo === 'prazo' && formData.data_fabricacao && formData.prazo_validade_meses) {
+            const dataCalculada = calcularDataValidade(formData.data_fabricacao, formData.prazo_validade_meses);
+            if (dataCalculada && dataCalculada !== formData.data_validade) {
+                setFormData(prev => ({ ...prev, data_validade: dataCalculada }));
+            }
+        }
+    }, [formData.data_fabricacao, formData.prazo_validade_meses, modoCalculo]);
+
+    const handleDataValidadeChange = (e) => {
+        setModoCalculo('data'); 
+        handleChange(e);
+    };
+
+    const handlePrazoValidadeChange = (e) => {
+        setModoCalculo('prazo');
+        handleChange(e);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (new Date(formData.data_validade) <= new Date(formData.data_fabricacao)) {
+            alert('A data de validade deve ser posterior à data de fabricação.');
+            return;
+        }
 
         try {
             const dadosParaAPI = {
@@ -73,7 +111,7 @@ const CadastrarLote = ({ produto, onLoteCadastrado, onClose, loteParaEditar = nu
                 prazo_validade_meses: parseInt(formData.prazo_validade_meses, 10),
                 quantidade_lote: parseInt(formData.quantidade_lote, 10),
                 ativo: formData.ativo,
-                valor_lote: 0 // Será calculado no backend
+                valor_lote: 0
             };
 
             if (isEditMode) {
@@ -131,7 +169,7 @@ const CadastrarLote = ({ produto, onLoteCadastrado, onClose, loteParaEditar = nu
 
             <div className="linha">
                 <div className="campo">
-                    <label htmlFor="data_fabricacao">Data de Fabricação:</label>
+                    <label htmlFor="data_fabricacao">Data de Fabricação: *</label>
                     <input 
                         className="caixa" 
                         id="data_fabricacao" 
@@ -143,34 +181,7 @@ const CadastrarLote = ({ produto, onLoteCadastrado, onClose, loteParaEditar = nu
                     />
                 </div>
                 <div className="campo">
-                    <label htmlFor="data_validade">Data de Validade:</label>
-                    <input 
-                        className="caixa" 
-                        id="data_validade" 
-                        name="data_validade" 
-                        type="date" 
-                        onChange={handleChange} 
-                        value={formData.data_validade} 
-                        required 
-                    />
-                </div>
-            </div>
-
-            <div className="linha">
-                <div className="campo">
-                    <label htmlFor="prazo_validade_meses">Prazo de Validade (meses):</label>
-                    <input 
-                        className="caixa" 
-                        id="prazo_validade_meses" 
-                        name="prazo_validade_meses" 
-                        type="number" 
-                        value={formData.prazo_validade_meses} 
-                        disabled
-                        style={{ backgroundColor: '#e9ecef' }}
-                    />
-                </div>
-                <div className="campo">
-                    <label htmlFor="ativo">
+                    <label htmlFor="ativo" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '30px' }}>
                         <input 
                             type="checkbox" 
                             id="ativo" 
@@ -178,8 +189,73 @@ const CadastrarLote = ({ produto, onLoteCadastrado, onClose, loteParaEditar = nu
                             onChange={handleChange} 
                             checked={formData.ativo} 
                         />
-                        Lote Ativo
+                        <span>Lote Ativo</span>
                     </label>
+                </div>
+            </div>
+
+            <div style={{ 
+                borderTop: '2px solid #e0e0e0', 
+                margin: '20px 0', 
+                paddingTop: '20px' 
+            }}>
+                <p style={{ 
+                    color: '#666', 
+                    fontSize: '14px', 
+                    fontStyle: 'italic',
+                    marginBottom: '15px'
+                }}>
+                    💡 <strong>Dica:</strong> Você pode informar a <strong>Data de Validade</strong> ou o <strong>Prazo de Validade</strong>. 
+                    O sistema calcula automaticamente o outro campo!
+                </p>
+            </div>
+
+            <div className="linha">
+                <div className="campo">
+                    <label htmlFor="data_validade">
+                        Data de Validade:
+                        {modoCalculo === 'prazo' && (
+                            <span style={{ color: '#4CAF50', fontSize: '12px', marginLeft: '8px' }}>
+                                ✓ Calculado automaticamente
+                            </span>
+                        )}
+                    </label>
+                    <input 
+                        className="caixa" 
+                        id="data_validade" 
+                        name="data_validade" 
+                        type="date" 
+                        onChange={handleDataValidadeChange} 
+                        value={formData.data_validade} 
+                        required 
+                        style={{
+                            backgroundColor: modoCalculo === 'prazo' ? '#f0f8f0' : 'white',
+                            borderColor: modoCalculo === 'prazo' ? '#4CAF50' : '#ccc'
+                        }}
+                    />
+                </div>
+                <div className="campo">
+                    <label htmlFor="prazo_validade_meses">
+                        Prazo de Validade (meses):
+                        {modoCalculo === 'data' && (
+                            <span style={{ color: '#2196F3', fontSize: '12px', marginLeft: '8px' }}>
+                                ✓ Calculado automaticamente
+                            </span>
+                        )}
+                    </label>
+                    <input 
+                        className="caixa" 
+                        id="prazo_validade_meses" 
+                        name="prazo_validade_meses" 
+                        type="number" 
+                        onChange={handlePrazoValidadeChange}
+                        value={formData.prazo_validade_meses} 
+                        min="1"
+                        style={{
+                            backgroundColor: modoCalculo === 'data' ? '#f0f4ff' : 'white',
+                            borderColor: modoCalculo === 'data' ? '#2196F3' : '#ccc'
+                        }}
+                    />
                 </div>
             </div>
 
@@ -187,7 +263,7 @@ const CadastrarLote = ({ produto, onLoteCadastrado, onClose, loteParaEditar = nu
                 <button className="botao" type="submit">
                     {isEditMode ? 'Atualizar' : 'Adicionar'}
                 </button>
-                <button className="botao" type="button" onClick={onClose}>
+                <button className="botao" type="button" onClick={onClose} style={{ backgroundColor: '#999' }}>
                     Cancelar
                 </button>
             </div>
