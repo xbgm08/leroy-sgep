@@ -31,7 +31,6 @@ const ImportarProdutos = ({ onClose, onImportSuccess }) => {
         setResult(null);
 
         try {
-            // ✅ Chama a função da API centralizada
             const data = await importarProdutosUpload(file);
             
             setResult(data);
