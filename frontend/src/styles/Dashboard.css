@@ -1,0 +1,457 @@
+.dashboard-container {
+    padding: 30px;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+}
+
+.dashboard-header h1 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.dashboard-loading,
+.dashboard-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #C8102E;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.dashboard-error button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #C8102E;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dashboard-error button:hover {
+    background: #A00D25;
+}
+
+.kpis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-left: 5px solid transparent;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.kpi-header h3 {
+    margin: 0 0 15px 0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #666;
+}
+
+.kpi-value {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 15px 0;
+    letter-spacing: -1px;
+}
+
+.kpi-footer {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.kpi-footer > span {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.sub-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+}
+
+.sub-info span {
+    font-size: 12px;
+    color: #666;
+}
+
+.sub-info strong {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+}
+
+.estoque-card {
+    border-left-color: #4CAF50;
+}
+.estoque-card .kpi-value { 
+    color: #4CAF50; 
+}
+
+.lotes-card {
+    border-left-color: #2196F3;
+}
+.lotes-card .kpi-value { 
+    color: #2196F3; 
+}
+
+.perdas-card {
+    border-left-color: #E53935;
+}
+.perdas-card .kpi-value { 
+    color: #E53935; 
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s;
+}
+
+.chart-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.chart-card h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.chart-card-header h3 {
+    margin: 0;
+}
+
+.items-badge {
+    background: #C8102E;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pie-chart-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 300px;
+}
+
+.pie-chart {
+    max-width: 200px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+}
+
+.pie-chart path {
+    stroke: white;
+    stroke-width: 2;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.pie-chart path:hover {
+    opacity: 0.9;
+    cursor: pointer;
+    transform: scale(1.02);
+}
+
+.pie-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.legend-item:hover {
+    background-color: #f9f9f9;
+}
+
+.legend-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.legend-label {
+    flex: 1;
+    color: #555;
+    font-weight: 500;
+}
+
+.legend-value {
+    font-weight: 700;
+    color: #333;
+    font-size: 15px;
+}
+
+.empty-chart {
+    text-align: center;
+    padding: 80px 20px;
+    color: #999;
+    font-style: italic;
+}
+
+.produtos-vencimento-list {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.produto-vencimento-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    margin-bottom: 8px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.produto-vencimento-item:hover {
+    background-color: #f9f9f9;
+    border-color: #ddd;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.produto-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.produto-info h4 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.produto-detalhes {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: #666;
+}
+
+.produto-detalhes span {
+    color: #888;
+}
+
+.produto-detalhes span strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.produto-vencimento {
+    text-align: right;
+    min-width: 110px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.vence-label {
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.dias-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.vence-critico {
+    background: linear-gradient(135deg, #E53935, #B71C1C);
+}
+
+.vence-alerta {
+    background: linear-gradient(135deg, #FF9800, #F57C00);
+}
+
+.vence-normal {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+}
+
+.data-vencimento {
+    font-size: 11px;
+    color: #888;
+}
+
+.empty-list {
+    text-align: center;
+    padding: 80px 20px;
+    color: #999;
+}
+
+.produtos-vencimento-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.produtos-vencimento-list::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 3px;
+}
+
+.produtos-vencimento-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.produtos-vencimento-list::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.chart-subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 1200px) {
+    .kpis-grid,
+    .charts-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 15px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 22px;
+    }
+
+    .kpis-grid,
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kpi-value {
+        font-size: 28px;
+    }
+
+    .produto-vencimento-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .produto-vencimento {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .produto-detalhes {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .pie-chart {
+        max-width: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpi-value {
+        font-size: 24px;
+    }
+
+    .sub-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
