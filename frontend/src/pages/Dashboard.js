@@ -39,12 +39,12 @@ const Dashboard = () => {
         );
     }
 
-    const formatCurrency = (val) => (val || 0).toLocaleString('pt-BR', { 
-        style: 'currency', 
-        currency: 'BRL' 
+    const formatCurrency = (val) => (val || 0).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
     });
 
-    const { 
+    const {
         valor_total_estoque = 0,
         valor_total_perdido = 0,
         estatisticas = {
@@ -68,7 +68,7 @@ const Dashboard = () => {
     ].filter(item => item.value > 0);
 
     const totalLotesProximoVencimento = status_lotes_distribuicao.em_30_dias + status_lotes_distribuicao.em_60_dias;
-    const percentualRisco = estatisticas.total_lotes > 0 
+    const percentualRisco = estatisticas.total_lotes > 0
         ? ((totalLotesProximoVencimento / estatisticas.total_lotes) * 100).toFixed(1)
         : 0;
 
@@ -90,11 +90,11 @@ const Dashboard = () => {
         const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
 
         return (
-            <text 
-                x={x} 
-                y={y} 
-                fill="white" 
-                textAnchor={x > cx ? 'start' : 'end'} 
+            <text
+                x={x}
+                y={y}
+                fill="white"
+                textAnchor={x > cx ? 'start' : 'end'}
                 dominantBaseline="central"
                 style={{ fontSize: '14px', fontWeight: 'bold' }}
             >
@@ -158,7 +158,7 @@ const Dashboard = () => {
                 {/* Status dos Lotes - Gráfico Pizza */}
                 <div className="chart-card">
                     <h3>Status dos Lotes</h3>
-                    
+
                     {pieData.length > 0 ? (
                         <>
                             <ResponsiveContainer width="100%" height={300}>
@@ -177,12 +177,12 @@ const Dashboard = () => {
                                             <Cell key={`cell-${index}`} fill={entry.color} />
                                         ))}
                                     </Pie>
-                                    <Tooltip 
+                                    <Tooltip
                                         formatter={(value) => `${value} lotes`}
                                         contentStyle={{ backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px' }}
                                     />
-                                    <Legend 
-                                        verticalAlign="bottom" 
+                                    <Legend
+                                        verticalAlign="bottom"
                                         height={36}
                                         formatter={(value, entry) => `${entry.payload.name} (${entry.payload.value})`}
                                     />
@@ -219,14 +219,20 @@ const Dashboard = () => {
                     <div className="chart-card-header">
                         <h3>Produtos Próximos do Vencimento</h3>
                         {produtos_vencimento_proximo.length > 0 && (
-                            <span className="items-badge">{produtos_vencimento_proximo.length} itens</span>
+                            <span className="items-badge critical-badge">
+                                {produtos_vencimento_proximo.length} produtos ≤ 15 dias
+                            </span>
                         )}
                     </div>
-                    
+
+                    <p className="chart-subtitle">
+                        Produtos com vencimento em até 15 dias (urgente)
+                    </p>
+
                     <div className="produtos-vencimento-list">
                         {produtos_vencimento_proximo.length === 0 ? (
                             <div className="empty-list">
-                                <p>✅ Nenhum produto próximo ao vencimento</p>
+                                <p>✅ Nenhum produto vencendo nos próximos 15 dias</p>
                             </div>
                         ) : (
                             produtos_vencimento_proximo.map((produto, idx) => (
@@ -255,7 +261,7 @@ const Dashboard = () => {
                 <div className="chart-card">
                     <h3>Produtos sem Lote Cadastrado (Top 10)</h3>
                     <p className="chart-subtitle">Produtos onde o estoque reportado é maior que o cadastrado em lotes</p>
-                    
+
                     {barData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={400}>
                             <BarChart
@@ -265,14 +271,14 @@ const Dashboard = () => {
                             >
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                 <XAxis type="number" stroke="#666" />
-                                <YAxis 
-                                    dataKey="nome" 
-                                    type="category" 
+                                <YAxis
+                                    dataKey="nome"
+                                    type="category"
                                     width={150}
                                     stroke="#666"
                                     style={{ fontSize: '12px' }}
                                 />
-                                <Tooltip 
+                                <Tooltip
                                     formatter={(value, name) => {
                                         if (name === 'falta') return [`${value} unidades`, 'Sem lote cadastrado'];
                                         if (name === 'percentual') return [`${value.toFixed(1)}%`, 'Concluído'];

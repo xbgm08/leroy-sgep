@@ -29,6 +29,7 @@ class DashboardService:
             DashboardData: Objeto com todos os KPIs calculados
         """
         now = datetime.now()
+        now_plus_15 = now + timedelta(days=15)
         now_plus_30 = now + timedelta(days=30)
         now_plus_60 = now + timedelta(days=60)
         now_plus_90 = now + timedelta(days=90)
@@ -167,11 +168,17 @@ class DashboardService:
                         { "$match": { "lotes.ativo": True } },
                         {
                             "$addFields": {
-                                # ✅ CORREÇÃO: Remover $dateFromString pois já é datetime
                                 "validade": "$lotes.data_validade"
                             }
                         },
-                        { "$match": { "validade": { "$gte": now } } },
+                        { 
+                            "$match": { 
+                                "validade": { 
+                                    "$gte": now,
+                                    "$lte": now_plus_15
+                                } 
+                            } 
+                        },
                         {
                             "$addFields": {
                                 "dias_para_vencer": {
@@ -191,7 +198,7 @@ class DashboardService:
                                 "codigo_lm": 1,
                                 "nome_produto": 1,
                                 "codigo_lote": "$lotes.codigo_lote",
-                                "local": { "$literal": "" },  # ✅ Campo não existe no modelo atual
+                                "local": { "$literal": "" },  
                                 "categoria": { "$ifNull": ["$secao", ""] },
                                 "data_validade": {
                                     "$dateToString": {
