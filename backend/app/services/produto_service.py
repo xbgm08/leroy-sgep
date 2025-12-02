@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import shutil
+import io
 
 from typing import List, Optional
 from pymongo.collection import Collection
@@ -212,7 +213,7 @@ class ProdutoService:
         
         return result.modified_count == 1
     
-def importar_produtos_from_excel(self) -> dict:
+    def importar_produtos_from_excel(self) -> dict:
         """Processa arquivos .xlsx de uma pasta específica para importar produtos em massa."""
         
         # Garante que as pastas de destino existam
@@ -348,3 +349,113 @@ def importar_produtos_from_excel(self) -> dict:
                         "arquivo": processing_file_path.name,
                         "erro": f"Erro ao processar: {e}. Erro ao mover para 'erros': {move_error}"
                     })
+    
+    def importar_produtos_via_upload(self, file_content: bytes, filename: str) -> dict:
+        """Processa um arquivo Excel recebido diretamente via upload (bytes)."""
+        try:
+            # Lê o Excel diretamente da memória (bytes)
+            df = pd.read_excel(io.BytesIO(file_content), engine='openpyxl')
+            
+            # Validação de colunas
+            colunas_esperadas = ['Material', 'Qtd. Estoque', 'Seção', 'Subseção', 'Estoque Valor', 'Loja']
+            if not all(col in df.columns for col in colunas_esperadas):
+                raise ValueError(f"Arquivo fora do formato. Colunas esperadas: {colunas_esperadas}")
+            
+            # Limpeza de dados
+            df = df.dropna(subset=['Material', 'Seção', 'Subseção'])
+            df = df[df['Material'].astype(str).str.strip() != '']
+            
+            # Extração de código LM e nome do produto
+            df['codigo_lm_str'] = df['Material'].astype(str).str.slice(0, 8).str.strip()
+            df['nome_produto'] = df['Material'].astype(str).str.slice(8).str.strip().str.lstrip('-').str.strip()
+            df['codigo_lm'] = pd.to_numeric(df['codigo_lm_str'], errors='coerce')
+            df['estoque_reportado'] = pd.to_numeric(df['Qtd. Estoque'], errors='coerce').fillna(0).astype(int)
+            
+            # Função para limpar valores monetários
+            def limpar_valor_monetario(valor) -> float:
+                if pd.isna(valor):
+                    return 0.0
+                valor_str = str(valor).strip()
+                if ',' in valor_str:
+                    valor_str = valor_str.replace('.', '').replace(',', '.')
+                res = pd.to_numeric(valor_str, errors='coerce')
+                return round(float(res), 2) if not pd.isna(res) else 0.0
+            
+            df['estoque_valor_float'] = df['Estoque Valor'].apply(limpar_valor_monetario)
+            
+            # Cálculo do preço unitário
+            df['preco_unit_calculado'] = 0.0
+            mask_valido = df['estoque_reportado'] > 0
+            df.loc[mask_valido, 'preco_unit_calculado'] = (
+                df['estoque_valor_float'] / df['estoque_reportado']
+            ).round(2)
+            
+            # Processamento de seção e subseção
+            secao_split = df['Seção'].astype(str).str.split(' - ', n=1, expand=True)
+            df['cod_secao'] = pd.to_numeric(secao_split[0], errors='coerce')
+            df['secao'] = secao_split[1].str.strip() if secao_split.shape[1] > 1 else None
+            
+            subsecao_split = df['Subseção'].astype(str).str.split(' - ', n=1, expand=True)
+            df['cod_subsecao'] = pd.to_numeric(subsecao_split[0], errors='coerce')
+            df['subsecao'] = subsecao_split[1].str.strip() if subsecao_split.shape[1] > 1 else None
+            
+            # Limpeza final
+            df = df.dropna(subset=['codigo_lm'])
+            df['codigo_lm'] = df['codigo_lm'].astype(int)
+            df = df.where(pd.notna(df), None)
+            
+            # Preparação de operações bulk
+            operacoes_bulk = []
+            for record in df.to_dict("records"):
+                filtro = {"codigo_lm": record['codigo_lm']}
+                
+                # Dados que sempre serão atualizados
+                dados_set = {
+                    "estoque_reportado": record['estoque_reportado'],
+                    "nome_produto": record['nome_produto'],
+                    "cod_secao": record.get('cod_secao'),
+                    "secao": record.get('secao'),
+                    "cod_subsecao": record.get('cod_subsecao'),
+                    "subsecao": record.get('subsecao'),
+                    "preco_unit": record.get('preco_unit_calculado', 0.0),
+                }
+                
+                # Dados inseridos apenas se for um produto novo
+                dados_setOnInsert = {
+                    "codigo_lm": record['codigo_lm'],
+                    "marca": "Aguardando Cadastro",
+                    "ficha_tec": "Aguardando Cadastro",
+                    "link_prod": "Aguardando Cadastro",
+                    "cor": "Aguardando Cadastro",
+                    "avs": False,
+                    "estoque_calculado": 0,
+                    "lotes": [],
+                    "fornecedor_cnpj": "" 
+                }
+                
+                operacoes_bulk.append(
+                    UpdateOne(
+                        filtro,
+                        {"$set": dados_set, "$setOnInsert": dados_setOnInsert},
+                        upsert=True
+                    )
+                )
+
+            if operacoes_bulk:
+                resultado = self.collection.bulk_write(operacoes_bulk)
+                return {
+                    "mensagem": "Importação via upload concluída com sucesso.",
+                    "detalhes": {
+                        "arquivo": filename,
+                        "produtos_criados": resultado.upserted_count,
+                        "produtos_atualizados": resultado.modified_count,
+                        "total_processados": len(operacoes_bulk)
+                    }
+                }
+            else:
+                raise ValueError("Nenhum dado válido encontrado para importar na planilha enviada.")
+
+        except pd.errors.EmptyDataError:
+            raise ValueError("Arquivo Excel está vazio.")
+        except Exception as e:
+            raise ValueError(f"Erro ao processar arquivo de upload: {str(e)}")

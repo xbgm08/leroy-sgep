@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status, UploadFile, File
 from app.models.produto import Produto, Lote
 from app.services.produto_service import ProdutoService
 
@@ -75,6 +75,7 @@ def delete_lote_data(codigo_lm: int, codigo_lote: str, service: ProdutoService =
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lote ou Produto não encontrado para exclusão")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+
 @router.post("/importar/processar-pasta")
 def processar_pasta_de_importacao(service: ProdutoService = Depends(get_produto_service)):
     """Processa todas as planilhas de produtos localizadas na pasta designada no servidor."""
@@ -85,3 +86,27 @@ def processar_pasta_de_importacao(service: ProdutoService = Depends(get_produto_
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno no processamento: {e}")
+    
+@router.post("/importar-upload", status_code=status.HTTP_200_OK)
+def importar_produtos_via_upload(
+    file: UploadFile = File(...),
+    service: ProdutoService = Depends(get_produto_service)
+):
+    """Importa produtos a partir de um arquivo Excel enviado via upload."""
+    if not file.filename.endswith('.xlsx'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Apenas arquivos .xlsx são permitidos."
+        )
+    
+    try:
+        file_content = file.file.read()
+        resultado = service.importar_produtos_via_upload(file_content, file.filename)
+        return resultado
+    except ValueError as ve:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao processar arquivo: {str(e)}"
+        )
