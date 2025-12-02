@@ -215,13 +215,17 @@ class ProdutoService:
     
     def importar_produtos_from_excel(self) -> dict:
         """Processa arquivos .xlsx de uma pasta específica para importar produtos em massa."""
+        pending_folder = Path(settings.PENDING_FOLDER)
+        processed_folder = Path(settings.PROCESSED_FOLDER)
+        error_folder = Path(settings.ERROR_FOLDER)
+        processing_folder = Path(settings.PROCESSING_FOLDER)
         
-        # Garante que as pastas de destino existam
-        os.makedirs(settings.PROCESSED_FOLDER, exist_ok=True)
-        os.makedirs(settings.ERROR_FOLDER, exist_ok=True)
-        os.makedirs(settings.PROCESSING_FOLDER, exist_ok=True)
+        processed_folder.mkdir(parents=True, exist_ok=True)
+        error_folder.mkdir(parents=True, exist_ok=True)
+        processing_folder.mkdir(parents=True, exist_ok=True)
+        pending_folder.mkdir(parents=True, exist_ok=True)
 
-        files_to_process = list(settings.WATCH_FOLDER.glob("*.xlsx"))
+        files_to_process = list(pending_folder.glob("*.xlsx"))
 
         if not files_to_process:
             return {"message": "Nenhum arquivo .xlsx encontrado na pasta 'pendentes'."}
@@ -229,72 +233,62 @@ class ProdutoService:
         report = {"arquivos_processados_com_sucesso": [], "arquivos_com_erro": []}
 
         for file_path in files_to_process:
-            processing_file_path = settings.PROCESSING_FOLDER / file_path.name
+            processing_file_path = processing_folder / file_path.name
             try:
-                shutil.move(str(file_path), processing_file_path)
+                shutil.move(str(file_path), str(processing_file_path))
             except Exception as move_error:
                 report["arquivos_com_erro"].append({
                     "arquivo": file_path.name,
-                    "erro": f"Erro CRÍTICO ao mover arquivo para 'processando': {move_error}"
+                    "erro": f"Erro ao mover arquivo para 'processando': {move_error}"
                 })
-                continue 
+                continue
 
             try:
                 df = pd.read_excel(processing_file_path, engine='openpyxl')
 
                 colunas_esperadas = ['Material', 'Qtd. Estoque', 'Seção', 'Subseção', 'Estoque Valor', 'Loja']
                 if not all(col in df.columns for col in colunas_esperadas):
-                    raise ValueError(f"Arquivo fora do formato. Faltando uma das colunas: {colunas_esperadas}")
+                    raise ValueError(f"Arquivo fora do formato. Colunas esperadas: {colunas_esperadas}")
                 
                 df = df.dropna(subset=['Material', 'Seção', 'Subseção'])
-                df = df[df['Material'].str.strip() != '']
+                df = df[df['Material'].astype(str).str.strip() != '']
                 
                 df['codigo_lm_str'] = df['Material'].astype(str).str.slice(0, 8).str.strip()
-                df['nome_produto'] = df['Material'].astype(str).str.slice(8).str.strip()
-                df['codigo_lm'] = pd.to_numeric(df['codigo_lm_str'], errors='coerce')                
+                df['nome_produto'] = df['Material'].astype(str).str.slice(8).str.strip().str.lstrip('-').str.strip()
+                df['codigo_lm'] = pd.to_numeric(df['codigo_lm_str'], errors='coerce')
                 df['estoque_reportado'] = pd.to_numeric(df['Qtd. Estoque'], errors='coerce').fillna(0).astype(int)
                 
                 def limpar_valor_monetario(valor) -> float:
-                    """Converte uma string monetária para float, tratando vírgulas e pontos."""
                     if pd.isna(valor):
                         return 0.0
-                    
                     valor_str = str(valor).strip()
-                    
                     if ',' in valor_str:
-                        valor_str = valor_str.replace('.', '', regex=False)
-                        valor_str = valor_str.replace(',', '.', regex=False)
-                    
-                    resultado_numerico = pd.to_numeric(valor_str, errors='coerce')
-                    
-                    if pd.isna(resultado_numerico):
-                        return 0.0
-                    else:
-                        return round(float(resultado_numerico), 2)
+                        valor_str = valor_str.replace('.', '').replace(',', '.')
+                    res = pd.to_numeric(valor_str, errors='coerce')
+                    return round(float(res), 2) if not pd.isna(res) else 0.0
                 
                 df['estoque_valor_float'] = df['Estoque Valor'].apply(limpar_valor_monetario)
+                
                 df['preco_unit_calculado'] = 0.0
-                mask_estoque_valido = df['estoque_reportado'] > 0
-                df.loc[mask_estoque_valido, 'preco_unit_calculado'] = (
+                mask_valido = df['estoque_reportado'] > 0
+                df.loc[mask_valido, 'preco_unit_calculado'] = (
                     df['estoque_valor_float'] / df['estoque_reportado']
                 ).round(2)
                 
                 secao_split = df['Seção'].astype(str).str.split(' - ', n=1, expand=True)
                 df['cod_secao'] = pd.to_numeric(secao_split[0], errors='coerce')
-                df['secao'] = secao_split[1].str.strip()
+                df['secao'] = secao_split[1].str.strip() if secao_split.shape[1] > 1 else None
                 
                 subsecao_split = df['Subseção'].astype(str).str.split(' - ', n=1, expand=True)
                 df['cod_subsecao'] = pd.to_numeric(subsecao_split[0], errors='coerce')
-                df['subsecao'] = subsecao_split[1].str.strip()
+                df['subsecao'] = subsecao_split[1].str.strip() if subsecao_split.shape[1] > 1 else None
                 
                 df = df.dropna(subset=['codigo_lm'])
                 df['codigo_lm'] = df['codigo_lm'].astype(int)
-                
                 df = df.where(pd.notna(df), None)
                 
                 operacoes_bulk = []
                 for record in df.to_dict("records"):
-                    
                     filtro = {"codigo_lm": record['codigo_lm']}
                     
                     dados_set = {
@@ -304,7 +298,7 @@ class ProdutoService:
                         "secao": record.get('secao'),
                         "cod_subsecao": record.get('cod_subsecao'),
                         "subsecao": record.get('subsecao'),
-                        "preco_unit": record.get('preco_unit_calculado', 0.0) 
+                        "preco_unit": record.get('preco_unit_calculado', 0.0),
                     }
                     
                     dados_setOnInsert = {
@@ -314,32 +308,35 @@ class ProdutoService:
                         "link_prod": "Aguardando Cadastro",
                         "cor": "Aguardando Cadastro",
                         "avs": False,
-                        "ativo": True,
-                        "lotes": []
+                        "estoque_calculado": 0,
+                        "lotes": [],
+                        "fornecedor_cnpj": ""
                     }
                     
-                    update_op = {
-                        "$set": dados_set,
-                        "$setOnInsert": dados_setOnInsert
-                    }
-                    
-                    operacoes_bulk.append(UpdateOne(filtro, update_op, upsert=True))
+                    operacoes_bulk.append(
+                        UpdateOne(
+                            filtro,
+                            {"$set": dados_set, "$setOnInsert": dados_setOnInsert},
+                            upsert=True
+                        )
+                    )
 
-                if not operacoes_bulk:
+                if operacoes_bulk:
+                    resultado = self.collection.bulk_write(operacoes_bulk)
+                    
+                    shutil.move(str(processing_file_path), str(processed_folder / processing_file_path.name))
+                    
+                    report["arquivos_processados_com_sucesso"].append({
+                        "arquivo": processing_file_path.name,
+                        "produtos_criados": resultado.upserted_count,
+                        "produtos_atualizados": resultado.modified_count
+                    })   
+                else:
                     raise ValueError("Nenhum dado válido encontrado dentro da planilha.")
-
-                resultado = self.collection.bulk_write(operacoes_bulk)
-                
-                shutil.move(str(processing_file_path), self.PROCESSED_FOLDER / processing_file_path.name)
-                report["arquivos_processados_com_sucesso"].append({
-                    "arquivo": processing_file_path.name,
-                    "produtos_criados": resultado.upserted_count,
-                    "produtos_atualizados": resultado.modified_count
-                })
 
             except Exception as e:
                 try:
-                    shutil.move(str(processing_file_path), self.ERROR_FOLDER / processing_file_path.name)
+                    shutil.move(str(processing_file_path), str(error_folder / processing_file_path.name))
                     report["arquivos_com_erro"].append({
                         "arquivo": processing_file_path.name,
                         "erro": str(e)
@@ -349,6 +346,7 @@ class ProdutoService:
                         "arquivo": processing_file_path.name,
                         "erro": f"Erro ao processar: {e}. Erro ao mover para 'erros': {move_error}"
                     })
+        return report
     
     def importar_produtos_via_upload(self, file_content: bytes, filename: str) -> dict:
         """Processa um arquivo Excel recebido diretamente via upload (bytes)."""
