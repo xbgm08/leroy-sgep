@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { getDashboardData } from '../api/dashboardAPI';
+import { getDashboardData, getProductStatus } from '../api/dashboardAPI';
 import '../styles/Dashboard.css';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { TbRefresh, TbAlertTriangle } from 'react-icons/tb';
 
 const Dashboard = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [chartData, setChartData] = useState(null);
+    const [loadingChart, setLoadingChart] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const result = await getDashboardData();
                 setData(result);
+                setChartData(result.status_lotes_distribuicao);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -20,6 +26,27 @@ const Dashboard = () => {
         };
         fetchData();
     }, []);
+
+    const handleProductClick = async (nomeProduto) => {
+        if (selectedProduct === nomeProduto) return;
+        
+        setLoadingChart(true);
+        setSelectedProduct(nomeProduto);
+        
+        try {
+            const statusProduto = await getProductStatus(nomeProduto);
+            setChartData(statusProduto);
+        } catch (error) {
+            console.error("Erro ao carregar status do produto:", error);
+        } finally {
+            setLoadingChart(false);
+        }
+    };
+
+    const handleResetFilter = () => {
+        setSelectedProduct(null);
+        setChartData(data.status_lotes_distribuicao);
+    };
 
     if (loading) {
         return (
@@ -52,31 +79,39 @@ const Dashboard = () => {
             produtos_em_estoque: 0,
             lotes_perdidos: 0
         },
-        status_lotes_distribuicao = {
-            em_90_dias: 0,
-            em_60_dias: 0,
-            em_30_dias: 0
-        },
         produtos_vencimento_proximo = [],
         produtos_falta_lote = []
     } = data;
 
+    const currentDistribution = chartData || { 
+        em_30_dias: 0, 
+        em_60_dias: 0, 
+        em_90_dias: 0, 
+        acima_90_dias: 0 
+    };
+
     const pieData = [
-        { name: 'Mais de 90 dias', value: status_lotes_distribuicao.em_90_dias, color: '#4CAF50' },
-        { name: 'Entre 31-60 dias', value: status_lotes_distribuicao.em_60_dias, color: '#FFC107' },
-        { name: 'Menos de 30 dias', value: status_lotes_distribuicao.em_30_dias, color: '#E53935' }
+        { name: 'Mais de 90 dias', value: currentDistribution.acima_90_dias || 0, color: '#4CAF50' },
+        { name: 'Entre 61-90 dias', value: currentDistribution.em_90_dias || 0, color: '#FFEB3B' },
+        { name: 'Entre 31-60 dias', value: currentDistribution.em_60_dias || 0, color: '#FFC107' },
+        { name: 'Menos de 30 dias', value: currentDistribution.em_30_dias || 0, color: '#E53935' }
     ].filter(item => item.value > 0);
 
-    const totalLotesProximoVencimento = status_lotes_distribuicao.em_30_dias + status_lotes_distribuicao.em_60_dias;
-    const percentualRisco = estatisticas.total_lotes > 0
-        ? ((totalLotesProximoVencimento / estatisticas.total_lotes) * 100).toFixed(1)
+    const totalLotesChart = pieData.reduce((acc, item) => acc + item.value, 0);
+    const totalLotesProximoVencimento = (currentDistribution.em_30_dias || 0) + 
+                                         (currentDistribution.em_60_dias || 0);
+    const percentualRisco = totalLotesChart > 0
+        ? ((totalLotesProximoVencimento / totalLotesChart) * 100).toFixed(1)
         : 0;
 
-    const barData = produtos_falta_lote.slice(0, 10).map(item => ({
-        nome: item.nome.length > 25 ? item.nome.substring(0, 22) + '...' : item.nome,
-        falta: item.falta_atribuir,
-        percentual: item.percentual_concluido
-    }));
+    const produtosOrdenados = [...produtos_falta_lote]
+        .sort((a, b) => {
+            if (a.tem_risco_vencimento === b.tem_risco_vencimento) {
+                return b.falta_atribuir - a.falta_atribuir;
+            }
+            return a.tem_risco_vencimento ? -1 : 1;
+        })
+        .slice(0, 10);
 
     const getDiasClass = (dias) => {
         if (dias <= 30) return 'vence-critico';
@@ -111,7 +146,6 @@ const Dashboard = () => {
 
             {/* KPIs Superiores */}
             <div className="kpis-grid">
-                {/* Valor Total do Estoque */}
                 <div className="kpi-card estoque-card">
                     <div className="kpi-header">
                         <h3>Valor Total do Estoque</h3>
@@ -122,7 +156,6 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* Lotes Cadastrados */}
                 <div className="kpi-card lotes-card">
                     <div className="kpi-header">
                         <h3>Lotes Cadastrados</h3>
@@ -137,7 +170,6 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* Perdas do Estoque */}
                 <div className="kpi-card perdas-card">
                     <div className="kpi-header">
                         <h3>Perdas do Estoque</h3>
@@ -156,10 +188,33 @@ const Dashboard = () => {
             {/* Cards Inferiores */}
             <div className="charts-grid">
                 {/* Status dos Lotes - Gráfico Pizza */}
-                <div className="chart-card">
-                    <h3>Status dos Lotes</h3>
+                <div className={`chart-card ${selectedProduct ? 'highlight-card' : ''}`}>
+                    <div className="chart-card-header">
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <h3>Status dos Lotes</h3>
+                            {selectedProduct && (
+                                <span style={{ fontSize: '12px', color: '#2196F3', fontWeight: 'bold', marginTop: '4px' }}>
+                                    Filtrado: {selectedProduct}
+                                </span>
+                            )}
+                        </div>
+                        {selectedProduct && (
+                            <button 
+                                onClick={handleResetFilter} 
+                                className="reset-filter-btn" 
+                                title="Voltar para Visão Geral"
+                            >
+                                <TbRefresh size={20} />
+                            </button>
+                        )}
+                    </div>
 
-                    {pieData.length > 0 ? (
+                    {loadingChart ? (
+                        <div className="chart-loading-overlay">
+                            <div className="spinner"></div>
+                            <p>Atualizando gráfico...</p>
+                        </div>
+                    ) : pieData.length > 0 ? (
                         <>
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
@@ -178,7 +233,7 @@ const Dashboard = () => {
                                         ))}
                                     </Pie>
                                     <Tooltip
-                                        formatter={(value) => `${value} lotes`}
+                                        formatter={(value) => `${value} ${selectedProduct ? 'unidades' : 'lotes'}`}
                                         contentStyle={{ backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px' }}
                                     />
                                     <Legend
@@ -191,25 +246,80 @@ const Dashboard = () => {
 
                             <div className="status-summary">
                                 <div className="summary-item critical">
-                                    <span className="summary-label">Lotes em Risco</span>
+                                    <span className="summary-label">Em Risco</span>
                                     <span className="summary-value">{totalLotesProximoVencimento}</span>
-                                    <span className="summary-detail">
-                                        {percentualRisco}% do total de lotes
-                                    </span>
+                                    <span className="summary-detail">{percentualRisco}% do total</span>
                                 </div>
                                 <div className="summary-divider"></div>
                                 <div className="summary-item info">
-                                    <span className="summary-label">Total de Lotes</span>
-                                    <span className="summary-value">{estatisticas.total_lotes}</span>
+                                    <span className="summary-label">Total</span>
+                                    <span className="summary-value">{totalLotesChart}</span>
                                     <span className="summary-detail">
-                                        Cadastrados no sistema
+                                        {selectedProduct ? 'Unidades em estoque' : 'Lotes cadastrados'}
                                     </span>
                                 </div>
                             </div>
                         </>
                     ) : (
                         <div className="empty-chart">
-                            <p>Nenhum lote cadastrado no momento</p>
+                            <p>Nenhum lote encontrado {selectedProduct && 'para este produto'}.</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Reconciliação de Estoque com Priorização */}
+                <div className="chart-card">
+                    <h3>Reconciliação de Estoque</h3>
+                    <p className="chart-subtitle">Clique em um produto para ver o status dos seus lotes</p>
+
+                    {produtosOrdenados.length > 0 ? (
+                        <div className="bar-list">
+                            {produtosOrdenados.map((prod, idx) => {
+                                const isSelected = selectedProduct === prod.nome;
+                                return (
+                                    <div
+                                        key={idx}
+                                        className={`bar-item ${isSelected ? 'selected-item' : ''}`}
+                                        onClick={() => handleProductClick(prod.nome)}
+                                        style={{
+                                            cursor: 'pointer',
+                                            borderLeft: prod.tem_risco_vencimento 
+                                                ? '4px solid #E53935' 
+                                                : (isSelected ? '4px solid #2196F3' : '4px solid transparent'),
+                                            backgroundColor: isSelected 
+                                                ? '#e3f2fd' 
+                                                : (prod.tem_risco_vencimento ? '#fff5f5' : 'white')
+                                        }}
+                                    >
+                                        <div className="bar-header">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                {prod.tem_risco_vencimento && (
+                                                    <TbAlertTriangle size={16} color="#E53935" />
+                                                )}
+                                                <span className="bar-name" title={prod.nome}>
+                                                    {prod.nome.length > 25 ? prod.nome.substring(0, 22) + '...' : prod.nome}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="progress-track">
+                                            <div 
+                                                className="progress-fill" 
+                                                style={{ width: `${Math.min(100, prod.percentual_concluido)}%` }}
+                                            ></div>
+                                        </div>
+                                        <div className="bar-footer">
+                                            <span>{prod.percentual_concluido.toFixed(1)}% Cadastrado</span>
+                                            <span className="bar-values">
+                                                Falta: <strong>{prod.falta_atribuir}</strong> un
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="empty-chart">
+                            <p>✅ Nenhum produto com discrepância de lotes</p>
                         </div>
                     )}
                 </div>
@@ -255,45 +365,6 @@ const Dashboard = () => {
                             ))
                         )}
                     </div>
-                </div>
-
-                {/* Falta Atribuir Lote - Gráfico de Barras Horizontais */}
-                <div className="chart-card">
-                    <h3>Produtos sem Lote Cadastrado (Top 10)</h3>
-                    <p className="chart-subtitle">Produtos onde o estoque reportado é maior que o cadastrado em lotes</p>
-
-                    {barData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={400}>
-                            <BarChart
-                                data={barData}
-                                layout="vertical"
-                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                <XAxis type="number" stroke="#666" />
-                                <YAxis
-                                    dataKey="nome"
-                                    type="category"
-                                    width={150}
-                                    stroke="#666"
-                                    style={{ fontSize: '12px' }}
-                                />
-                                <Tooltip
-                                    formatter={(value, name) => {
-                                        if (name === 'falta') return [`${value} unidades`, 'Sem lote cadastrado'];
-                                        if (name === 'percentual') return [`${value.toFixed(1)}%`, 'Concluído'];
-                                        return value;
-                                    }}
-                                    contentStyle={{ backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px' }}
-                                />
-                                <Bar dataKey="falta" fill="#2196F3" radius={[0, 8, 8, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <div className="empty-chart">
-                            <p>✅ Nenhum produto com discrepância de lotes</p>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

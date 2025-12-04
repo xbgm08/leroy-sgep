@@ -11,3 +11,13 @@ export const getDashboardData = async () => {
         throw error;
     }
 };
+
+export const getProductStatus = async (nomeProduto) => {
+    try {
+        const response = await axios.get(`${API_URL}/dashboard/status-produto/${encodeURIComponent(nomeProduto)}`);
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar status do produto:', error);
+        throw error;
+    }
+};
