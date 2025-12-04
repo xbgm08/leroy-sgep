@@ -9,6 +9,7 @@ class ValorRiscoVencimento(BaseModel):
 
 class StatusLotesDistribuicao(BaseModel):
     """Distribuição de lotes por faixa de vencimento."""
+    acima_90_dias: int = 0      
     em_90_dias: int = 0
     em_60_dias: int = 0
     em_30_dias: int = 0
@@ -28,6 +29,7 @@ class ProdutoFaltanteLote(BaseModel):
     nome: str
     falta_atribuir: int
     percentual_concluido: float
+    tem_risco_vencimento: bool = False
 
 class EstatisticasEstoque(BaseModel):
     """Estatísticas gerais do estoque."""

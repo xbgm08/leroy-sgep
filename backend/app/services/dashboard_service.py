@@ -115,7 +115,19 @@ class DashboardService:
                                         ]
                                     }
                                 },
-                                # Valores em risco
+                                "lotes_acima_90": { 
+                                    "$sum": {
+                                        "$cond": [
+                                            {
+                                                "$and": [
+                                                    { "$eq": ["$lotes.ativo", True] },
+                                                    { "$gt": ["$validade", now_plus_90] }
+                                                ]
+                                            },
+                                            1, 0
+                                        ]
+                                    }
+                                },
                                 "risco_0_30": {
                                     "$sum": {
                                         "$cond": [
@@ -220,18 +232,44 @@ class DashboardService:
                                         { "$ifNull": ["$estoque_reportado", 0] },
                                         { "$ifNull": ["$estoque_calculado", 0] }
                                     ]
+                                },
+                                "lotes_em_risco_count": {
+                                    "$size": {
+                                        "$filter": {
+                                            "input": { "$ifNull": ["$lotes", []] },
+                                            "as": "lote",
+                                            "cond": {
+                                                "$and": [
+                                                    { "$eq": ["$$lote.ativo", True] },
+                                                    { "$gte": ["$$lote.data_validade", now] },
+                                                    { "$lte": ["$$lote.data_validade", now_plus_90] }
+                                                ]
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         },
                         { "$match": { "falta": { "$gt": 0 } } },
-                        { "$sort": { "falta": -1 } },
+                        {
+                            "$addFields": {
+                                "tem_risco_vencimento": { "$gt": ["$lotes_em_risco_count", 0] }
+                            }
+                        },
+                        { 
+                            "$sort": { 
+                                "tem_risco_vencimento": -1,
+                                "falta": -1 
+                            } 
+                        },
                         { "$limit": 10 },
                         {
                             "$project": {
                                 "nome": "$nome_produto",
                                 "falta_atribuir": "$falta",
                                 "reportado": { "$ifNull": ["$estoque_reportado", 1] },
-                                "calculado": { "$ifNull": ["$estoque_calculado", 0] }
+                                "calculado": { "$ifNull": ["$estoque_calculado", 0] },
+                                "tem_risco_vencimento": 1
                             }
                         }
                     ]
@@ -248,8 +286,11 @@ class DashboardService:
             data = result[0]
             
             # Processa KPIs Gerais
-            kpis_data = data.get("kpis_gerais", [{}])[0]
-            lotes_data = data.get("lotes_info", [{}])[0]
+            kpis_list = data.get("kpis_gerais", [])
+            kpis_data = kpis_list[0] if kpis_list else {}
+            
+            lotes_list = data.get("lotes_info", [])
+            lotes_data = lotes_list[0] if lotes_list else {}
             
             estatisticas = EstatisticasEstoque(
                 total_produtos=kpis_data.get("total_produtos", 0),
@@ -267,6 +308,7 @@ class DashboardService:
             
             # Distribuição Status Lotes (para gráfico pizza)
             status_distribuicao = StatusLotesDistribuicao(
+                acima_90_dias=lotes_data.get("lotes_acima_90", 0),
                 em_90_dias=lotes_data.get("lotes_90_dias", 0),
                 em_60_dias=lotes_data.get("lotes_60_dias", 0),
                 em_30_dias=lotes_data.get("lotes_30_dias", 0)
@@ -294,7 +336,8 @@ class DashboardService:
                     percentual_concluido=round(
                         (item["calculado"] / item["reportado"]) * 100 if item["reportado"] > 0 else 0,
                         1
-                    )
+                    ),
+                    tem_risco_vencimento=bool(item.get("tem_risco_vencimento", False))
                 )
                 for item in data.get("falta_lote", [])
             ]
@@ -323,4 +366,62 @@ class DashboardService:
             status_lotes_distribuicao=StatusLotesDistribuicao(),
             produtos_vencimento_proximo=[],
             produtos_falta_lote=[]
+        )
+    
+    def get_product_lote_status(self, nome_produto: str) -> StatusLotesDistribuicao:
+        """Calcula a distribuição de status de lotes para um produto específico (Ponderado por Quantidade)."""
+        now = datetime.now()
+        now_plus_30 = now + timedelta(days=30)
+        now_plus_60 = now + timedelta(days=60)
+        now_plus_90 = now + timedelta(days=90)
+
+        pipeline = [
+            { "$match": { "nome_produto": nome_produto } },
+            { "$unwind": "$lotes" },
+            { "$match": { "lotes.ativo": True } },
+            {
+                "$project": {
+                    "validade": "$lotes.data_validade",
+                    "quantidade": { "$ifNull": ["$lotes.quantidade_lote", 0] } 
+                }
+            },
+            {
+                "$group": {
+                    "_id": None,
+                    "lotes_30_dias": {
+                        "$sum": {
+                            "$cond": [{ "$and": [{ "$gte": ["$validade", now] }, { "$lte": ["$validade", now_plus_30] }] }, "$quantidade", 0]
+                        }
+                    },
+                    "lotes_60_dias": {
+                        "$sum": {
+                            "$cond": [{ "$and": [{ "$gt": ["$validade", now_plus_30] }, { "$lte": ["$validade", now_plus_60] }] }, "$quantidade", 0]
+                        }
+                    },
+                    "lotes_90_dias": {
+                        "$sum": {
+                            "$cond": [{ "$and": [{ "$gt": ["$validade", now_plus_60] }, { "$lte": ["$validade", now_plus_90] }] }, "$quantidade", 0]
+                        }
+                    },
+                    "lotes_acima_90": {
+                        "$sum": {
+                            "$cond": [{ "$gt": ["$validade", now_plus_90] }, "$quantidade", 0]
+                        }
+                    }
+                }
+            }
+        ]
+
+        result = list(self.produtos_collection.aggregate(pipeline))
+        
+        if not result:
+            return StatusLotesDistribuicao()
+
+        data = result[0]
+        
+        return StatusLotesDistribuicao(
+            acima_90_dias=int(data.get("lotes_acima_90", 0)),
+            em_90_dias=int(data.get("lotes_90_dias", 0)),
+            em_60_dias=int(data.get("lotes_60_dias", 0)),
+            em_30_dias=int(data.get("lotes_30_dias", 0))
         )

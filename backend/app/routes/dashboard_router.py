@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.services.dashboard_service import DashboardService
-from app.models.dashboard import DashboardData
+from app.models.dashboard import DashboardData, StatusLotesDistribuicao
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard & KPIs"])
 
@@ -23,4 +23,18 @@ async def get_dashboard_kpis(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erro ao calcular KPIs do dashboard: {str(e)}"
+        )
+        
+@router.get("/status-produto/{nome_produto}", response_model=StatusLotesDistribuicao)
+async def get_product_status(
+    nome_produto: str,
+    service: DashboardService = Depends(get_dashboard_service)
+):
+    """Retorna a distribuição de lotes de um produto específico."""
+    try:
+        return service.get_product_lote_status(nome_produto)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao buscar status do produto: {str(e)}"
         )
